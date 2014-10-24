@@ -1,0 +1,59 @@
+-import statements need fully qualified names starting from the root package
+-an import statement will have to begin with a package statement, thus class and it's members from default packages cannot be imported
+
+-there are 2 kinds of imports,
+	-import : imports top-level classes, static nested classes and member classes (All kinds of classes). members, static members cannot be imported
+	-import static : imports static members and static nested classes. top level classes cannot be imported
+
+-instance members other than member classes can never be imported.
+--------------------------------------------------------------------------------
+package com.cyril;
+class Demo{
+
+	static String staticVariable="staticVariable";
+
+	String instanceVariable="instanceVariable";
+
+	static class NestedClass1{}
+	static class NestedClass2{}
+
+	class MemberClass1{}
+	class MemberClass2{}
+}
+*******
+package com.cyril;
+
+import com.cyril.Demo.*;    //imports all classes
+
+class Test{
+	public static void main(String... args){
+
+		//System.out.println(staticVariable);  //'import' doesn't import members
+
+		NestedClass1 nestedClass1=new NestedClass1();
+		NestedClass2 nestedClass2=new NestedClass2();
+
+		MemberClass1 memberClass1=new Demo().new MemberClass1();
+		MemberClass2 memberClass2=new Demo().new MemberClass2();
+	}
+}
+*******
+package com.cyril;
+
+//import static com.cyril.Demo;    //'import static' cannot import top-level classes
+import static com.cyril.Demo.*;    //imports only static members and classes
+
+class Test{
+	public static void main(String... args){
+
+		System.out.println(staticVariable);
+		//System.out.println(instanceVariable);  // 'import static' imports only static members and classes
+
+		NestedClass1 nestedClass1=new NestedClass1();
+		NestedClass2 nestedClass2=new NestedClass2();
+
+		//MemberClass1 memberClass1=new Demo().new MemberClass1();  // 'import static' imports only static members and classes
+		//MemberClass2 memberClass2=new Demo().new MemberClass2();  // 'import static' imports only static members and classes
+	}
+}
+--------------------------------------------------------------------------------

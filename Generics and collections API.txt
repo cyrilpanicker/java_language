@@ -1,0 +1,695 @@
+-CollectionI
+	-QueueI	(supports queue methods)
+		-PriorityQueue	(sorted)
+		-LinkedList	(ordered as per index, doubly linked, fast insertion and deletion, supports list methods)
+	-ListI	(ordered as per index)
+		-ArrayList	(supports random access(fast iteration), unsynchronized)
+		-Vector	(synchronized array list, supports random access(fast iteration))
+		-LinkedList	(doubly linked, fast insertion and deletion, supports queue methods)
+	-SetI	(duplicate objects not allowed)
+		-HashSet	(unordered)
+			-LinkedHashSet	(ordered as per order of insertion)
+		-SortedSetI	(sorted)
+			-NavigableSetI
+				-TreeSet
+
+-MapI	(duplicate keys not allowed)
+	-Hashtable	(unordered, synchronized HashMap, doesn't permit null)
+	-HashMap	(unordered, unsynchronized, permits nulls, fast insertion and deletion)
+		-LinkedHashMap	(ordered as per order of insertion or order of access, fast iteration)
+	-SortedMapI	(sorted)
+		-NavigableMapI
+			-TreeMap
+
+sorted - ordered as per natural order of the elements or as per supplied logic.
+-------------------------------------------------------------------------------------------------------------
+public interface java.util.Iterator<E>{
+	boolean hasNext()
+	E next()
+	void remove()
+}
+
+public interface java.util.Enumeration<E>{
+	boolean hasMoreElements()
+	E nextElement()
+}
+-------------------------------------------------------------------------------------------------------------
+Collection interface methods
+
+int size()
+
+boolean add(E e)
+boolean remove(Object o)
+
+boolean contains(Object o)
+
+Object[] toArray()
+<T> T[] toArray(T[] a)
+
+Iterator<E> iterator()
+--------------------------------------------------------------------------------------------------
+List interface methods
+
+int indexOf(Object o)
+
+void add(int index, E element)
+E remove(int index)
+
+E get(int index)
+E set(int index, E element)
+------------------------------------------------------------------------------
+Queue interface methods
+
+E peek()
+E poll()
+boolean offer(E e)
+-------------------------------------------------------------------------------------------------------
+SortedSet interface methods
+
+SortedSet<E> headSet(E toElement): <E, backed
+SortedSet<E> tailSet(E fromElement): >=E, backed
+SortedSet<E> subSet(E fromElement, E toElement): fromElement inclusive, toElement exclusive, backed
+
+E first()
+E last()
+-----------------------------------------------------------------------------------------------------
+NavigableSet interface methods
+
+NavigableSet<E> headSet(E toElement, boolean inclusive):backed
+NavigableSet<E> tailSet(E fromElement, boolean inclusive):backed
+NavigableSet<E> subSet(E fromElement, boolean fromInclusive, E toElement, boolean toInclusive) : backed
+NavigableSet<E> descendingSet(): backed
+
+E pollFirst()
+E pollLast()
+
+E higher(E e): least element > E / null
+E lower(E e): greatest element < E / null
+
+E ceiling(E e) : least element >= E / null
+E floor(E e):greatest element <= E / null
+
+-------------------------------------------------------------------------------------------------------
+Map interface methods
+
+int size()
+
+V put(K key,V value)
+V get(Object key)
+V remove(Object key)
+
+Set<K> keySet() : backed
+
+boolean containsKey(Object key)
+boolean containsValue(Object value)
+
+-------------------------------------------------------------------------------------
+SortedMap interface methods
+
+SortedMap<K,V> headMap(K toKey): <K, backed
+SortedMap<K,V> tailMap(K fromKey):>=K, backed
+SortedMap<K,V> subMap(K fromKey, K toKey):fromKey inclusive, toKey exclusive, backed
+
+K firstKey()
+K lastKey()
+---------------------------------------------------------------------------------------
+NavigableMap interface methods
+
+NavigableMap<K,V> headMap(K toKey, boolean inclusive)
+NavigableMap<K,V> tailMap(K fromKey, boolean inclusive):backed
+NavigableMap<K,V> subMap(K fromKey, boolean fromInclusive, K toKey, boolean toInclusive):backed
+NavigableMap<K,V> descendingMap() : backed
+
+Map.Entry<K,V> pollFirstEntry()
+Map.Entry<K,V> pollLastEntry()
+
+Map.Entry<K,V> firstEntry()
+Map.Entry<K,V> lastEntry()
+
+K higherKey(K key):least key > K / null
+K lowerKey(K key):greatest key < K / null
+
+Map.Entry<K,V> higherEntry(K key):least key > K / null
+Map.Entry<K,V> lowerEntry(K key):greatest key < K / null
+
+K ceilingKey(K key):least key >= K / null
+K floorKey(K key):greatest key <= K / null
+
+Map.Entry<K,V> ceilingEntry(K key):least key >= K / null
+Map.Entry<K,V> floorEntry(K key):greatest key <= K / null
+----------------------------------------------------------------------------------
+Map.Entry interface methods
+
+K getKey()
+V getValue()
+V setValue(V value)
+-----------------------------------------------------------------------------------------------------------
+Collections class methods
+
+public static <T extends Comparable<? super T>> void sort(List<T> list)
+public static <T> void sort(List<T> list, Comparator<? super T> c)
+
+public static <T> int binarySearch(List<? extends Comparable<? super T>> list, T key)
+public static <T> int binarySearch(List<? extends T> list, T key, Comparator<? super T> c)
+
+public static void reverse(List<?> list)
+
+public static <T> Comparator<T> reverseOrder()
+public static <T> Comparator<T> reverseOrder(Comparator<T> cmp)
+-------------------------------------------------------------------------------------------------------
+Arrays class methods
+
+public static void sort(<primitive array>)
+public static void sort(Object[] a)
+public static <T> void sort(T[] a, Comparator<? super T> c)
+
+public static int binarySearch(<primitive array>, <key>)
+public static int binarySearch(Object[] a, Object key)
+public static <T> int binarySearch(T[] a, T key, Comparator<? super T> c)
+
+public static <T> List<T> asList(T... a)
+
+public static boolean equals(Object[] a, Object[] a2)
+public static boolean equals(<primitive array1>, <primitive array>)
+
+public static String toString(Object[] a)
+public static String toString(<primitive array>)
+----------------------------------------------------------------------------------------------------------
+import java.util.*;
+
+class Animal{}
+
+class Test{
+	public static void main(String... args){
+		Object[] objects={new Animal()};
+		Arrays.sort(objects);  // no error
+		for(Object object:objects)System.out.println(object);
+	}
+}
+
+*************
+import java.util.*;
+
+class Animal {}
+
+class Test{
+	public static void main(String... args){
+		Object[] objects={new Animal(), new Animal()};
+		Arrays.sort(objects);  // run time exception, objects do not implement Comparable
+		for(Object object:objects)System.out.println(object);
+	}
+}
+******************
+import java.util.*;
+
+class Animal implements Comparable<Car>{
+	public int compareTo(Car car){
+		return -1;
+	}
+}
+
+class Car{}
+
+class Test{
+	public static void main(String... args){
+		Object[] objects={new Animal(), new Animal()};
+		Arrays.sort(objects);  //run time exception,  objects are not mutually comparable
+					//animal object's compareTo method takes an argument which is not compatible to 
+					//other objects in the collection, comparison is not possible
+		for(Object object:objects)System.out.println(object);
+	}
+}
+******************
+import java.util.*;
+
+class Animal{}
+
+class Cat extends Animal implements Comparable<Animal>{
+	public int compareTo(Animal animal){
+		return -1;
+	}
+}
+
+class Dog extends Animal implements Comparable<Animal>{
+	public int compareTo(Animal animal){
+		return 1;
+	}
+}
+
+class Test{
+	public static void main(String... args){
+		Object[] objects={new Cat(), new Dog(), new Cat(), new Dog()};
+		Arrays.sort(objects); //sorting successful, all are animal objects and each object is been compared as animal object.
+		for(Object object:objects)System.out.println(object);
+	}
+}
+
+for successful sorting as per natural ordering, 
+-the objects should have implemented Comparable
+-the objects should be mutually comparable
+*************
+
+import java.util.*;
+
+class Animal{}
+
+class Test{
+	public static void main(String... args){
+		ArrayList<Object> objects=new ArrayList<Object>();
+		objects.add(new Animal());
+		Collections.sort(objects); // compile time error
+		for(Object object:objects)System.out.println(object);
+	}
+}
+
+although Arrays.sort(array) doesn't have any compile time restrictions, Collections.sort() has. remember the method signature.
+------------------------------------------------------------------------------------------------------------
+import java.util.*;
+
+class Test{
+	public static void main(String[] args){
+		List<Integer> integerList=new ArrayList<Integer>();
+		integerList.add(10);
+		integerList.add(8);
+		integerList.add(6);
+		integerList.add(1);
+		integerList.add(2);
+		integerList.add(7);
+		integerList.add(3);
+		integerList.add(5);
+		integerList.add(9);
+		for(int i:integerList)System.out.print(i+", ");
+		System.out.println();
+		Collections.sort(integerList);
+		for(int i:integerList)System.out.print(i+", ");
+		System.out.println();
+		integerList.add(-(Collections.binarySearch(integerList,4))-1,4);
+		for(int i:integerList)System.out.print(i+", ");
+		System.out.println();
+	}
+}
+output:
+10, 8, 6, 1, 2, 7, 3, 5, 9,
+1, 2, 3, 5, 6, 7, 8, 9, 10,
+1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+-----------------------------------------------------------------------------------------------------
+class GenericClass<T>{}
+class Test{
+	public static void main(String[] args){
+		GenericClass<String> a=new GenericClass(); // warning
+		GenericClass<? extends Integer> b =new GenericClass(); //warning
+		GenericClass<? super Integer> c =new GenericClass();//warning
+		GenericClass<?> d =new GenericClass();//no warning
+		GenericClass e =new GenericClass<String>();//no warning
+	}
+}
+assigning non-generic object reference to generic reference variable generates warnings. --> unchecked operation
+---------------------------------------------------------------------------------------
+import java.util.*;
+
+class Test{
+	public static void main(String[] args){
+		List elements=new List();
+		elements.add("cyril");
+		elements.add(52);
+	}
+}
+
+operations which add elements to non-generic collections, generate warnings. --> unchecked operation
+-----------------------------------------------------------------------------------------
+
+import java.util.*;
+
+class Test{
+	public static void main(String[] args){
+
+		List<Integer> integers=new ArrayList<Integer>();
+		integers.add(1);
+		integers.add(3);
+		integers.add(5);
+		integers.add(4);
+		integers.add(2);
+
+		Iterator<?> iterator=integers.iterator();
+
+		while(iterator.hasNext()){
+			System.out.println(iterator.next());
+		}
+	}
+}
+-----------------------------------------------------------------------------------------
+package pkg1;
+
+import java.util.*;
+
+class A{}
+
+class B extends A{}
+
+class Test {
+	static void method(List strings) {}
+
+	static void method(List<String> strings) {}
+
+	static void method(List<Integer> integers) {}
+	
+	static void method(List<? extends A> strings ){}
+
+	static void method(List<? super B> strings){}
+
+	public static void main(String[] args) {
+		method(new ArrayList<String>());
+	}
+}
+
+above code will not compile. due to erasure, all the methods have same signature
+------------------------------------------------------------------------------------------
+import java.util.*;
+
+class Animal{}
+
+class Dog extends Animal{}
+class BullDog extends Dog{}
+class PetBullDog extends BullDog{}
+
+class Cat extends Animal{}
+
+class Test{
+	public static void main(String... args){
+
+		List<?> animals=new ArrayList<Cat>();
+		animals.add(new Cat()); //compile time error
+
+		List<? extends Animal> dogs=new ArrayList<Dog>();
+		dogs.add(new Dog());  //compile time error
+
+		List<Cat> cats=new ArrayList<Cat>();
+		cats.add(new Cat());
+
+		List<? super BullDog> bullDogs=new ArrayList<BullDog>();
+		bullDogs.add(new BullDog());
+		bullDogs.add(new PetBullDog());
+		bullDogs.add(new Dog()); //compile time error
+
+		List<? super BullDog> dogs1=new ArrayList<Dog>();
+		dogs1.add(new BullDog());
+		dogs1.add(new PetBullDog());
+		dogs1.add(new Dog()); //compile time error
+	}
+}
+-generic collection typed with <?> or <? extends Type> cannot add elements to the collection.
+-generic collection typed with <? super Type> can add elements of type 'Type' or its subtypes.
+----------------------------------------------------------------------------------------------
+
+class Test{
+	public static void main(String... args){
+
+		//int a=null;  //compile time error
+
+		Integer b=5;
+		Integer c=null;
+
+		int d=b;
+		int e=c;  //NullPointerException
+	}
+}
+
+**********************
+
+import java.util.*;
+
+class Test{
+	public static void main(String... args){
+
+		List<Integer> integers=new ArrayList<Integer>();
+		for(int i=0;i<=5;i++)integers.add(i);
+
+		Object[] objects=integers.toArray(new Object[10]);
+		for(Object object:objects)System.out.print(object+", ");
+		System.out.println();
+
+		String[] strings=integers.toArray(new String[10]);
+		for(String string:strings)System.out.print(string+", ");
+		System.out.println();
+	}
+}
+
+output:
+
+0, 1, 2, 3, 4, 5, null, null, null, null,
+Exception in thread "main" java.lang.ArrayStoreException
+        at java.lang.System.arraycopy(Native Method)
+        at java.util.ArrayList.toArray(Unknown Source)
+        at Test.main(Test.java:13)
+
+**********************
+
+import java.util.*;
+
+class Test{
+	public static void main(String... args){
+
+		List<Integer> integers=new ArrayList<Integer>();
+		for(int i=0;i<=5;i++)integers.add(i);
+
+		Integer[] array;
+
+		Integer[] intArray0=new Integer[]{-1,-1,-1,-1,-1,-1};
+		array=integers.toArray(intArray0);
+		System.out.println("length : "+array.length);
+		System.out.println("equal : "+(intArray0==array));
+		for(int a:array)System.out.print(a+", ");
+		System.out.println();
+
+		Integer[] intArray1=new Integer[]{-1,-1,-1};
+		array=integers.toArray(intArray1);
+		System.out.println("length : "+array.length);
+		System.out.println("equal : "+(intArray1==array));
+		for(int a:array)System.out.print(a+", ");
+		System.out.println();
+
+		Integer[] intArray2=new Integer[]{-1,-1,-1,-1,-1,-1,-1,-1};
+		array=integers.toArray(intArray2);
+		System.out.println("length : "+array.length);
+		System.out.println("equal : "+(intArray2==array));
+		for(int a:array)System.out.print(a+", ");
+		System.out.println();
+
+
+	}
+}
+
+output :
+
+length : 6
+equal : true
+0, 1, 2, 3, 4, 5,
+length : 6
+equal : false
+0, 1, 2, 3, 4, 5,
+length : 8
+equal : true
+0, 1, 2, 3, 4, 5, Exception in thread "main" java.lang.NullPointerException
+        at Test.main(Test.java:29)
+
+-while using  <T> T[] toArray(T[] suppliedArray), 
+-the type of the type of elements of the supplied array should be compatible with type of the elements in the list. 
+-if the list fits into the array, then the returned array is the modified supplied array.
+else a new array is created.
+-if the capacity of the array is more than the no. of elements in the list,
+the elements in the array immediately following the end of the list is set to null.
+--------------------------------------------------------------------------------------
+
+import java.util.*;
+class Book implements Comparable<Book>{
+	String title;
+	String author;
+	String genre;
+	Book(String title, String author, String genre){
+		this.title=title;
+		this.author=author;
+		this.genre=genre;
+	}
+	public String toString(){
+		return title+"/"+author+"/"+genre;
+	}
+	public int compareTo(Book book){
+		return this.title.compareTo(book.title);
+	}
+}
+
+class BookComaparatorUsingAuthor implements Comparator<Book>{
+	public int compare(Book book1, Book book2){
+		return book1.author.compareTo(book2.author);
+	}
+}
+
+class Test{
+	public static void main(String[] args){
+		Book book1=new Book("Alchemist","Coelho", "Fantasy");
+		Book book2=new Book("White Tiger", "Adiga", "Fiction");
+		Book book3=new Book("Mahabharat", "Valmiki", "Religion");
+		Book book4=new Book("Pilgrmage", "Coelho", "Fiction");
+		Book book5=new Book("Chanakya", "Sanghi", "Thriller");
+		
+		List<Book> bookList=new ArrayList<Book>();
+		bookList.add(book1);
+		bookList.add(book2);
+		bookList.add(book3);
+		bookList.add(book4);
+		bookList.add(book5);
+		
+		System.out.println("unsorted : \n"+bookList);
+
+		Collections.sort(bookList);
+		System.out.println("sorted by natural order : \n"+bookList);
+
+		Collections.sort(bookList,new BookComaparatorUsingAuthor());
+		System.out.println("sorted using comparator 1 : \n"+bookList);
+
+		Collections.sort(bookList,new Comparator<Book>(){
+			public int compare(Book book1, Book book2){
+				return book1.genre.compareTo(book2.genre);
+			}
+		});
+		System.out.println("sorted using comparator 2 : \n"+bookList);
+	}
+}
+-----------------------------------------------------------------------------------------------
+
+import java.util.*;
+
+class Demo implements Comparable<Demo>{
+	String x;
+	Demo(String x){this.x=x;}
+	public boolean equals(Object object){
+		if(object instanceof Demo && ((Demo)object).x==this.x) return true;
+		else return false;
+	}
+	public String toString(){
+		return x;
+	}
+	//public int hashCode(){
+	//	return x.length();
+	//}
+	public int compareTo(Demo demo){
+		return this.x.compareTo(demo.x);
+	}
+}
+
+class Test{
+	public static void main(String... args){
+
+		Set<Demo> demos=new HashSet<Demo>();
+		demos.add(new Demo("a"));
+		demos.add(new Demo("b"));
+		demos.add(new Demo("a"));
+		demos.add(new Demo("cyril"));
+		demos.add(new Demo("b"));
+		demos.add(new Demo("cyril"));	
+
+		System.out.println(demos);
+
+		Set<Demo> sortedDemos=new TreeSet<Demo>();
+		sortedDemos.add(new Demo("a"));
+		sortedDemos.add(new Demo("b"));
+		sortedDemos.add(new Demo("a"));
+		sortedDemos.add(new Demo("cyril"));
+		sortedDemos.add(new Demo("b"));
+		sortedDemos.add(new Demo("cyril"));
+
+		System.out.println(sortedDemos);
+	}
+}
+
+output:
+[b, b, a, a, cyril, cyril]
+[a, b, cyril]
+
+if hashing based collections are used without overriding hashCode(), each object created will have unique hashcode and therefore will cause collections to have duplicate entries.
+--------------------------------------------------------------------------------------------------------------
+
+import java.util.*;
+
+class Demo1 implements Comparable<Demo1>{
+	String x;
+	Demo1(String x){this.x=x;}
+	public boolean equals(Object object){
+		if(object instanceof Demo1 && ((Demo1)object).x==this.x) return true;
+		else return false;
+	}
+	public String toString(){
+		return x;
+	}
+	public int compareTo(Demo1 demo1){
+		return this.x.compareTo(demo1.x);
+	}
+}
+
+class Demo2{
+	String x;
+	Demo2(String x){this.x=x;}
+	public boolean equals(Object object){
+		if(object instanceof Demo2 && ((Demo2)object).x==this.x) return true;
+		else return false;
+	}
+	public String toString(){
+		return x;
+	}
+}
+
+class Test{
+	public static void main(String... args){
+
+		TreeSet<Demo1> demo1Set=new TreeSet<Demo1>();
+		demo1Set.add(new Demo1("a"));	
+		demo1Set.add(new Demo1("b"));
+
+		TreeSet<Demo2> demo2Set=new TreeSet<Demo2>();// no error
+		demo2Set.add(new Demo2("n")); // no error
+		demo2Set.add(new Demo2("n"));  //run time exception over here
+	}
+}
+
+if a sorted collection of incomparable objects are formed and if their comparison logic is not supplied, it causes a run time exception, just when the runtime needs a comparison to be made.
+--------------------------------------------------------------------------------
+import java.util.*;
+
+class Demo implements Comparable<Demo>{
+	String name;
+	Demo(String name){this.name=name;}
+	public String toString(){return name;}
+	public int compareTo(Demo demo){return this.name.compareTo(demo.name);}
+}
+
+class Demo1{}
+
+class Test{
+	public static void main(String... args) {
+
+		Queue<Integer> numberQueue=new PriorityQueue<Integer>();
+		numberQueue.offer(8);
+		numberQueue.offer(1);
+		numberQueue.offer(4);
+		numberQueue.offer(10);
+		numberQueue.offer(5);
+		System.out.println(numberQueue);  // no order guaranteed
+		for(int i:numberQueue)System.out.println(i);  //no order guaranteed
+		for(int i=0;i<5;i++)System.out.println(numberQueue.poll()); // ordered as per natural order, ascending order
+ 
+		Queue<Demo> demoQueue=new PriorityQueue<Demo>();
+		demoQueue.offer(new Demo("j"));
+		demoQueue.offer(new Demo("a"));
+		demoQueue.offer(new Demo("d"));
+		demoQueue.offer(new Demo("v"));
+		demoQueue.offer(new Demo("f"));
+		System.out.println(demoQueue);  // no order guaranteed
+		for(Demo i:demoQueue)System.out.println(i);  // no order guaranteed
+		for(int i=0;i<5;i++)System.out.println(demoQueue.poll());  // ordered as per natural order, ascending order
+
+		Queue<Demo1> demo1Queue=new PriorityQueue<Demo1>();
+		demo1Queue.offer(new Demo1());
+		demo1Queue.offer(new Demo1());  //run time exception over here, objects are not Comparable
+	}
+}
+------------------------------------------------------------------------------------------------

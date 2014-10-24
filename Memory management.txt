@@ -1,0 +1,8 @@
+System.gc();
+
+Runtime runtime=Runtime.getRuntime();
+runtime.totalMemory();
+runtime.freeMemory();
+runtime.gc();
+
+For any given object, public void finalize() will be called only once (at most) by the garbage collector.

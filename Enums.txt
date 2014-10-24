@@ -1,0 +1,223 @@
+Whenever an enum is declared, internally (or conceptually), a class (a static nested class in case of nested enum types) is created which implicitly inherits Enum<DeclaredEnumType>
+
+Thus,
+ 
+"enum Color{}" is similar to "class Color extends Enum<Color>{}"
+
+and
+
+"class Demo{enum Color{}}"
+
+is similar to
+
+class Demo{
+	static Color extends Enum<Color>{}
+}
+
+But in code we can never directly extend Enum<T>.
+--------------------------------------------------------------------------------
+Each enum constant in the enum body becomes a public static final member of the enclosing class with the type same as that of the enclosing type.
+
+enum Color{
+
+	RED, GREEN(5), 
+	BLUE{
+		void method(){
+			System.out.println("overriding method, data : "+data);
+		}
+	};
+
+	int data;
+
+	Color(){data=0;}
+	Color(int data){this.data=data;}
+
+	void method(){
+		System.out.println("data : "+data);
+	}
+}
+
+is similar in functionality to
+
+class Color extends Enum<Color>{
+
+	public static final Color RED=new Color();
+	public static final Color GREEN=new Color(5);
+	public static final Color BLUE=new Color(){
+		void method(){
+			System.out.println("overriding method, data : "+data);
+		}
+	};
+
+	int data;
+
+	Color(){data=0;}
+	Color(int data){this.data=data;}
+
+	void method(){
+		System.out.println("data : "+data);
+	}
+}
+
+and the similarity can be verified with the below code
+
+class Test{
+	public static void main(String... args){
+		Color.RED.method();
+		Color.GREEN.method();
+		Color.BLUE.method();
+	}
+}
+
+output:
+data : 0
+data : 5
+overriding method, data : 0
+--------------------------------------------------------------------------------
+Every enum type has
+-a static values() method which returns an array of all the enum constants
+-a static valueOf() method which returns an enum constant based on it's string representaion.
+
+import java.util.*;
+
+enum Color{RED(1), GREEN(2), BLUE(3);
+
+	int data;
+	Color(int data){this.data=data;}
+
+	void method(){
+		System.out.println(data);
+	}
+}
+
+class Test{
+	public static void main(String... args){
+
+		Color[] colors=Color.values();
+		for(Color color : colors)System.out.println(color);
+
+		System.out.println(Arrays.asList(Color.RED.values()).toString());
+
+		Color.valueOf("GREEN").method();
+		Color.BLUE.valueOf("RED").method();
+	}
+}
+
+output:
+RED
+GREEN
+BLUE
+[RED, GREEN, BLUE]
+2
+1
+--------------------------------------------------------------------------------
+enum Color {RED, GREEN, BLUE}
+
+enum Color1 {RED, GREEN, BLUE;}
+
+enum Color2 {RED, GREEN, BLUE;};
+
+enum Color3{
+	//RED,GREEN,BLUE //error
+	RED,GREEN,BLUE;
+	int a=20;
+}
+
+enum Color4{
+	RED,GREEN,BLUE;
+	int a=20;
+};
+
+class Main{
+	enum Color {RED, GREEN, BLUE}
+
+	enum Color1 {RED, GREEN, BLUE;}
+
+	enum Color2 {RED, GREEN, BLUE;};
+	
+	enum Color3{
+		//RED,GREEN,BLUE //error
+		RED,GREEN,BLUE;
+		int a=20;
+	}
+
+	enum Color4{
+		RED,GREEN,BLUE;
+		int a=20;
+	};
+}
+
+-enums can be declared at top level or can also be nested. However they cannot be part of a method definition.
+-semicolon may or may not be present after the completion of enum code definition.
+-if enum code contains only declaration of constant enum objects, semicolon is not compulsory
+-if enum code contains anything other than the constant enum objects, constant enum objects declaration should be the first line of code with a compulsory semicolon.
+
+-Constructors in an enum can have only private or default access.
+--------------------------------------------------------------------------------
+
+class Main {
+	static private int counter = 0;
+
+	enum Color {
+		RED, GREEN, BLUE;
+		private int colorNumber;
+
+		Color() {
+			colorNumber = ++counter;
+		}
+
+		int getNumber() {
+			return colorNumber;
+		}
+	}
+
+	public static void main(String[] args) {
+		Color color = Color.RED;
+		Color color2 = Color.RED;
+		Color color3 = Color.GREEN;
+		System.out.println(color.getNumber() + ", " + color2.getNumber() + ", "
+				+ color3.getNumber());
+		System.out.println(new Main().counter);
+		new Demo().method();
+	}
+}
+
+class Demo {
+	void method() {
+		Main.Color color = Main.Color.BLUE;
+		System.out.println(color.getNumber());
+	}
+}
+
+-nested enums are also static nested classes. All rules applicable to static nested classes are also applicable to nested enums
+--------------------------------------------------------------------------------
+class Test {
+	enum Color {
+		RED, GREEN, BLUE;
+		private Color() {
+			System.out.println("Color object created");
+		}
+		void method(){
+			//new Color();  //error
+		}
+	}
+	public static void main(String... args) {
+		Color color;
+		System.out.println("main method starts");
+		System.out.println(Color.RED);
+		System.out.println(Color.GREEN);
+		//new Color();  //error
+	}
+}
+
+output:
+main method starts
+Color object created
+Color object created
+Color object created
+RED
+GREEN
+
+All enum objects are created at once and they are created once an enum object is encountered.
+Enum objects can never be created using code.
+--------------------------------------------------------------------------------

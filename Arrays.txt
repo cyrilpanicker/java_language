@@ -1,0 +1,133 @@
+Arrays
+
+class Main{
+	int[] a=new int[]{1,5,6}  //error
+	int[] a1=new int[]{5,8,9};
+	int[] a1=new int[]{5,8,9,};
+	int[] a2=new int[]{1,5,6;}  //error
+	int[] a3=new int[]{5,8,9;}; //error
+}
+-semicolon can be present only after the array code definition
+--------------------------------------------------------------------------------
+public class Test {
+	public static void main(String[] args) {
+		int[] a;
+		a={1,2,5};		//compiler error;
+		
+		int[] b={1,2,5};
+		
+		int[] c;
+		c=new int[]{1,2,5};
+	}
+}
+
+-array literals can be used only for initializing or with new operator.
+--------------------------------------------------------------------------------
+class Test{
+	public static void main(String[] args) {
+		
+		int a1=2;
+		char a2='g';
+		a1=a2;
+		
+		int[] a=new int[2];
+		int[] b=new int[3];
+		char[] c=new char[2];
+		
+		a=b;
+		//a=c;  //error
+	}
+}
+
+-primitive array variables cannot be cast into any type. thus int[] cannot be assigned to long[] with or without cast. 
+--------------------------------------------------------------------------------
+
+interface Car{}
+class Zen implements Car{}
+
+class Animal{}
+class Dog extends Animal{}
+class Horse extends Animal{}
+
+class Test{
+	public static void main(String[] args) {
+		Animal[] animalArray=new Animal[2];
+		Dog[] dogArray=new Dog[2];
+		Horse[] horseArray=new Horse[2];
+		Car[] carArray=new Zen[2];
+		
+		//dogArray=animalArray;  //error
+		
+		//dogArray=(Dog[])animalArray; //run-time error
+		
+		animalArray=dogArray;
+		
+		dogArray=(Dog[])animalArray;
+		
+		//dogArray=(Dog[])horseArray;  //error
+		
+		//dogArray=(Dog[])carArray;  //run-time error
+	}
+}
+-reference type array variables can however be assigned to one another as per IS-A rule. Thus Horse[] can be assigned to Animal[]. And Animal[] can be assigned to Horse[] with a cast. Follow the same rules as casting of refernce variables.
+
+-Any implicit or explicit cast between reference type array variables follow the rules which are normally followed by their non-array counterparts.
+
+-However array elements behave exactly the same as what they would have been as usual variables. ie., elements in long[] can hold int and can also hold float with a cast. An element in Animal[] can hold Dog object. An element in Dog[] can hold BullDog object.
+--------------------------------------------------------------------------------
+class Animal{}
+class Dog extends Animal{}
+class Cat extends Animal{}
+class Test{
+	public static void main(String... args){
+	
+		Animal[] animals={new Dog(),new Dog(),new Dog()};
+		animals[1]=new Cat();//type of element in animals array is Animal at compile time and run time
+		
+		Animal[] dogs=new Dog[3];
+		dogs[1]=new Cat();//run time error, type of element in dogs array is Animal at compile time and Dog at run time
+		
+	}
+}
+*********************
+class Animal{
+	void animalMethod(){
+		System.out.println("animal method");
+	}
+	void method(){
+		System.out.println("animal method");
+	}
+}
+class Dog extends Animal{
+	void dogMethod(){
+		System.out.println("dog method");
+	}
+	void method(){
+		System.out.println("dog method");
+	}
+}
+
+class Test{
+	public static void main(String[] args){
+		Animal[] animals=new Dog[5];
+		animals[0]=new Dog();
+		//animals[0].dogMethod();  //compile time error
+		animals[0].animalMethod();
+		animals[0].method();
+		animals[1]=new Animal();  //runtime exception
+	}
+}
+-An array object of subclass objects can be assigned to a super class array reference variable.
+individual array elements behave like super class reference variables at compile time and sub class reference variables at run time.
+--------------------------------------------------------------------------------
+class Test{
+	public static void main(String... args){
+		int size=10;
+		int[] array=new int[size];	//no error
+		for(int i=0;i<array.length;i++)array[i]=i;
+		for(int i : array)System.out.println(i);
+	}
+}
+
+Since arrays are allocated memory at runtime, size of the array need not be a compile-time-constant for array declaration.
+--------------------------------------------------------------------------

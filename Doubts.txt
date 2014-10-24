@@ -1,0 +1,622 @@
+Doubts
+
+class Test{
+	public static void main(String... args){
+		int a=5;
+		label1:{
+			try{
+				System.out.println("inside try");
+				throw new ArithmeticException();
+			}
+			catch(Exception exception){
+				System.out.println("inside catch");
+				a--;
+				if(a>0)break label1;
+			}
+			System.out.println("outside catch");
+		}
+	}
+}
+-------------------------------------------------------------------------
+
+class BadFoodException extends Exception{}
+
+class MyException{
+	void checkFood(String food) throws BadFoodException{
+		if(food.toLowerCase().charAt(0)=='f')throw new BadFoodException();
+		System.out.println("food liked");
+	}
+	public static void main(String... args){
+		try{
+			checkFood(args[0]);
+		}
+		catch(BadFoodException exception){
+			System.out.println("food not liked");
+		}
+	}
+}
+-------------------------------------------------------------------------
+-Error
+	-AssertionError
+	-LinkageError
+		-ExceptionInInitializerError
+		-NoClassDefFoundError
+	-ThreadDeath
+	-VirtualMachineError
+		-StackOverflowError
+		-OutOfMemoryError
+-----------------------------------------------------------------
+The below code has to be compiled with -source 1.3 option for error-free compilation
+
+class Test{
+	static void assert(){
+		System.out.println(assert);
+	}
+	public satic void main(String... args){
+		int assert=10;
+		
+	}
+}
+****************
+below code will generate error with -source 1.3 option but will compile error-free with default, with -source 1.6 or-source 6 option
+
+class Test{
+	int assert=10;
+	public satic void main(String... args){
+		assert(new Test().assert==10):"new Test().assert!=10";
+		assert(new Test().assert==10);s
+	}
+}
+
+
+Java 6 compiler identifies assertion mechanism.
+Code which is not assertion-aware should be compiled with "-source 1.3".
+------------------------------------------------------------------------
+
+java -da:testpackage... -ea:testpackage.Test Test
+----------------------------------------------------------------------
+
+class DemoObject{
+	private int value;
+	DemoObject(int value){
+		this.value=value;
+	}
+	int getValue(){
+		return value;
+	}
+	public boolean equals(Object object){
+		System.out.println("Object method called");
+		if(object instanceof DemoObject && this.value==((DemoObject)object).value)return true;
+		else return false;
+	}
+	public boolean equals(DemoObject object){
+		System.out.println("DemoObject method called");
+		if(this.value==object.value)return true;
+		else return false;
+	}
+}
+
+class Test{
+	public static void main(String[] args){
+		DemoObject object1=new DemoObject(1);
+		DemoObject object2=new DemoObject(2);
+		DemoObject object3=new DemoObject(1);
+		System.out.println(object1.hashCode()+", "+object2.hashCode()+", "+object3.hashCode());
+		System.out.println();
+		System.out.println(object1.equals(object2)+", "+object1.equals(object3));
+	}
+}
+
+****
+public class MyClass 
+{   private int x;  
+ public MyClass(int n) { x = n; }   
+public boolean equals(Object o) { return false; }  
+ public boolean equals(MyClass mc) { return x == mc.x; }  
+ public static void main(String[] args) {     
+List<MyClass> list = new ArrayList<MyClass>();    
+ list.add(new MyClass(3));     
+System.out.println("Contains 3? " + list.contains(new MyClass(3)));   
+} } 
+
+Because the compiler eliminates all information regarding to Generics (erasure, see here), and (2) because you cannot override a method without the exact same signature (equals(Object)), (3) during runtime all objects inside the List are treated as Objects and not as instances of MyClass. Hence, the method that gets called is equals(Object) since this is the one that is been overwritten by your class.
+
+-------------------------------------------------------------------------------------------------------------
+Collection Hierarchy
+
+-CollectionI
+	-QueueI	(supports queue methods)
+		-PriorityQueue	(sorted)
+		-LinkedList	(ordered as per index, doubly linked, fast insertion and deletion, supports list methods)
+	-ListI	(ordered as per index)
+		-ArrayList	(supports random access(fast iteration), unsynchronized)
+		-Vector	(synchronized array list, supports random access(fast iteration))
+		-LinkedList	(doubly linked, fast insertion and deletion, supports queue methods)
+	-SetI	(duplicate objects not allowed)
+		-HashSet	(unordered)
+			-LinkedHashSet	(ordered as per order of insertion)
+		-SortedSetI	(sorted)
+			-NavigableSetI
+				-TreeSet
+
+-MapI	(duplicate keys not allowed)
+	-HashTable	(unordered, synchronized HashMap, doesn't permit null)
+	-HashMap	(unordered, unsynchronized, permits nulls)
+		-LinkedHashMap	(ordered as per order of insertion or order of access)
+	-SortedMapI	(sorted)
+		-NavigableMapI
+			-TreeMap
+
+sorted - ordered as per natural order of the elements or as per supplied logic.
+-------------------------------------------------------------------------------------------------------------
+List methods
+
+int size()
+boolean contains(Object object)
+boolean add(E e)
+boolean remove(Object o)
+
+--------------------------------------------------------------------------------
+Collections methods
+
+static <T extends Comparable<? super T>> void sort(List<T> list)
+public static <T> void sort(List<T> list, Comparator<? super T> c)
+-----------------------------------------------------------------------------
+import java.util.*;
+class Book implements Comparable<Book>{
+	String title;
+	String author;
+	String genre;
+	Book(String title, String author, String genre){
+		this.title=title;
+		this.author=author;
+		this.genre=genre;
+	}
+	public String toString(){
+		return title+"/"+author+"/"+genre;
+	}
+	public int compareTo(Book book){
+		return this.title.compareTo(book.title);
+	}
+}
+
+class BookComaparatorUsingAuthor implements Comparator<Book>{
+	public int compare(Book book1, Book book2){
+		return book1.author.compareTo(book2.author);
+	}
+}
+
+class Test{
+	public static void main(String[] args){
+		Book book1=new Book("Alchemist","Coelho", "Fantasy");
+		Book book2=new Book("White Tiger", "Adiga", "Fiction");
+		Book book3=new Book("Mahabharat", "Valmiki", "Religion");
+		Book book4=new Book("Pilgrmage", "Coelho", "Fiction");
+		Book book5=new Book("Chanakya", "Sanghi", "Thriller");
+		
+		List<Book> bookList=new ArrayList<Book>();
+		bookList.add(book1);
+		bookList.add(book2);
+		bookList.add(book3);
+		bookList.add(book4);
+		bookList.add(book5);
+		
+		System.out.println("unsorted : \n"+bookList);
+
+		Collections.sort(bookList);
+		System.out.println("sorted by natural order : \n"+bookList);
+
+		Collections.sort(bookList,new BookComaparatorUsingAuthor());
+		System.out.println("sorted using comparator 1 : \n"+bookList);
+
+		Collections.sort(bookList,new Comparator<Book>(){
+			public int compare(Book book1, Book book2){
+				return book1.genre.compareTo(book2.genre);
+			}
+		});
+		System.out.println("sorted using comparator 2 : \n"+bookList);
+	}
+}
+------------------------------------------------------------------------------------
+
+class Animal{
+	String name;
+	Animal(String name){
+		this.name=name;
+	}
+	public String toString(){
+		return name;
+	}
+}
+
+class Cat extends Animal implements Comparable<Animal>{
+	Cat(String name){
+		super(name);
+	}
+	public int compareTo(Animal animal){
+		return this.name.compareTo(animal.name);
+	}
+}
+
+class Dog extends Animal implements Comparable<Animal>{
+	Dog(String name){
+		super(name);
+	}
+	public int compareTo(Animal animal){
+		return this.name.compareTo(animal.name);
+	}
+}
+
+class Test{
+	public static void main(String... args){
+		Animal a=new
+	}
+}
+------------------------------------------------------------------------------
+
+class Test{
+	int a=1;
+	public String toString(){
+		return a;
+	}
+	public static void main(String[] args){
+		String c=2;
+		System.out.println(new Test());
+	}
+}
+-------------------------------------------------------------------------
+import java.util.ArrayList;
+import java.util.List;
+import java.util.*;
+
+class Test{
+	public static void main(String[] args) {
+		List<Integer> integers=new ArrayList<Integer>();
+		integers.add(2);
+		integers.add(5);
+		integers.add(8);
+		System.out.println(integers);
+		addToList(integers);
+		integers.add(4);
+		System.out.println(integers);
+		Object object=integers.get(3);// no run time exception
+		System.out.println(object);
+		System.out.println(integers.get(3));// no run time exception
+		Iterator iterator=integers.iterator();
+		while(iterator.hasNext())System.out.println(iterator.next());// no run time exception
+		Iterator<Integer> integerIterator=integers.iterator();
+		while(integerIterator.hasNext())System.out.println(integerIterator.next());// no run time exception
+		for(Object object1:integers);//run time exception
+	}
+	static void addToList(List list){
+		System.out.println("entering method");
+		System.out.println(list);
+		list.add("cyril");
+		System.out.println(list);
+		System.out.println("leaving method");
+	}
+}
+-----------------------------------------------------------------------
+List<? extends ClassName>
+-can be assigned any List with parameter type ClassName or subtype of ClassName.
+-adding operation of any kind leads to compile time error
+
+List<? super ClassName>
+-can be assigned any List with parameter type ClassName or supertype of ClassName.
+-adding objects of type compatible ClassName doesn't cause compile time error
+-adding objects of types not compatible with ClassName causes compile time error
+------------------------------------------------------------------------------------
+class Animal{}
+//interface Animal{}
+class Horse extends Animal{}
+class Dog extends Animal{}
+class Main{
+	public static void main(String[] args){
+		System.out.prinln(new Horse[5] instanceof Animal[]);
+		Animal[] animalArray=new Horse[2];
+		Horse[] horseArray=animalArray //error
+		Horse[] horseArray1=(Horse[])animalArray;
+		Horse[] horseArray2=(Horse[])new Animal[]{new Dog(),new Horse()};//run time error
+		horseArray2=new Horse[]{new Dog(),new Horse()};//error
+ 	}
+}
+-------------------------------------------------------------------------------------------------------
+class Main{
+	static method(float a){System.out.println(“float method”);}
+	static method(double a){System.out.println(“double method”);}
+	static method(Long a) {System.out.println(“Boxed Long method”);}
+	public static void main(String[] args){
+		long a=15;
+		method(12L);
+		method(a);
+	}
+}
+-----------------------------------------------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		char a=’”’;
+		char d=’\”’;
+		String e=”’”;
+		String f=”\’”;
+	}
+}
+-----------------------------------------------------------------------------------------------------------------
+class Animal{}
+class Dog extends Animal{}
+interface Car{}
+class Zen implements Car{}
+class Main{
+	public static void main(String[] args){
+		System.out.println(new Dog() instanceof Car);
+		System.out.println(new Car(){} instanceof Animal);//error
+		System.out.println((Car)new Zen() instanceof Animal);
+		System.out.println((Car)new Car(){} instanceof Animal);
+	}
+}
+-------------------------------------------------------------------------------------------------------
+interface Animal{
+	void eat();
+}
+
+class Main{
+	public static void main(Sting[] args){
+		Animal animalObj= new Animal(){};//error
+		Animal animalOnj=new Animal(){public void eat(){System.out.println("Animal eating");}};
+	}
+}
+------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		int a;
+		try{
+			a=10;
+		}
+		finally{}
+		System.out.println(a);
+	}
+}
+----------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		int a;
+		try{}
+		finally{a=10;}
+		System.out.println(a);
+	}
+}
+---------------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		Integer a=32;
+		Integer b=32;
+		System.out.println(a==b);
+	}
+}
+------------------------------------------------------------------------------
+interface A{int A;}
+
+class B implements A{
+	B(){A=2;}
+}
+------------------------------------------------
+interface A{int A;}
+
+class B implements A{
+	void method(){A=2;}
+}
+----------------------------------------------
+interface A{int A;}
+
+class B implements A{
+	void method(){A=2;}
+}
+-----------------------------------------------
+interface A{int A;}
+
+class B implements A{
+	static void method(){A=2;}
+}
+------------------------------------------------
+class A{int a=10;}
+class B extends A{
+	int a=20;
+	void method(){System.out.println(a+", "+super.a+", "+this.super.a+", "+new B().super.a);}
+	public static void main(String[] args){
+		new B().method();
+		System.out.println(new B().a);
+		System.out.println(((A)new B()).a);
+		System.out.println(new B().super.a);
+	}
+}
+//try implementing main in another class
+----------------------------------------------
+interface A{int A=10;}
+
+class B implements A{
+	static int A=20;
+	void method(){System.out.println(A+", "+super.A+", "+new B().super.a);}	
+	public static void main(String[] args){
+		new B().method();
+		new B().A;
+		System.out.println(A);
+		System.out.println(super.A);
+	}
+}
+//try implementing main in another class
+------------------------------------------------------------------------
+class Main{
+	static void method(int... varargs){
+		System.out.println(varargs.length);
+		for(int a:varargs)System.out.println(a);
+	}
+	public static void main(String[] args){
+		method(1,5,8,9,6);
+	}
+}
+------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		new Thread(new Runnable(){public void run(){System.out.println("line printed using a thread");}}).start();
+		new Thread(){public void run(){System.out.println("line printed using a thread");}}.start();
+	}
+}
+--------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		Integer a=10;
+		Integer b=10;
+		Long c=10;
+		Long d=10;
+		//Long e=a;
+		System.out.println(a==b);
+		System.out.println(c==d);
+	}
+}
+--------------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		int[][] a=new int[2,3];
+	}
+}
+------------------------------------------------------------------------------
+
+class A{
+	int a=10;
+	class B extends A{
+		int a=20;		
+	}
+}
+
+class Main extends A.B{
+	int a=30;
+	public static void main(String[] args){
+		System.out.println(new Main().a);
+		System.out.println(((A.B)new Main()).a);
+		System.out.println(((A)new Main()).a);
+		A a=new Main();System.out.println(a.a);
+		A.B b=new Main();System.out.println(b.a);
+	}
+}
+-----------------------------------------------------------------
+class A{}
+class B{}
+interface C{}
+interface D{}
+class E extends A{}
+class F extends B{}
+class G implements C{}
+class H implements D{}
+
+class Main{
+	public static void main(Sring[] args){
+		A a=new A();
+		B b=new B();
+		E e=new E();
+		F f=new F();
+		c c=new G();
+		//System.out.println(a==b);
+		System.out.println(e==a);
+		System.out.println(f==b);
+		a=e;
+		b=f;
+		System.out.println(a==e);
+		System.out.println(b==f);
+		System.out.println(a==c);
+	}
+}
+--------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		byte a=10;
+		int b=20;
+		int c=128;
+		double d=2.3F;
+		float e=2.3F;
+		System.out.println(a==10);
+		System.out.println(a==128);
+		System.out.println(a==b);
+		System.out.println(a==c);
+		System.out.println(d==e);
+	}
+}
+-----------------------------------------------------------------------------------------
+class Main {
+	public static void main(String[] args) {
+		System.out.println("char 'a' == 'a'? " + ('a' == 'a'));
+		System.out.println("char 'a' == 'b'? " + ('a' == 'b'));
+		System.out.println("5 != 6? " + (5 != 6));
+		System.out.println("5.0 == 5L? " + (5.0 == 5L));
+		System.out.println("true == false? " + (true == false));
+	}
+}
+-----------------------------------------------------------------------------------------------
+
+class Main{
+	public static void main(String[] args){
+
+		byte a=10;
+	
+		switch(a){
+		case 1:
+		case 127:
+		case 128:
+		}
+	}
+}
+------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		for(int i=1;i<=5;i++)if(i%2==0)System.out.println(i);System.out.println("first loop ended");
+		for(int i=1;i<=5;i++)if(i%2==0)System.out.println(i);else System.out.println(i);	
+	}
+}
+------------------------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		int[] a=new int[]{1,5,8,9,6,3};
+		for(int b:a)if(b==8)b=10;
+		for(int b:a)System.out.println(b);	
+	}
+}
+-------------------------------------------------------------------------------
+class Outer{
+	private int a=10;
+	static class NestedClass extends Outer{
+		void method(){
+			System.out.println(((Outer)this).a);
+			//System.out.println(this.a);
+			//System.out.println(Outer.this.a);
+			System.out.println(new Outer().a);
+		}
+	}
+	class MemberClass extends Outer{
+		void method(){
+			System.out.println(a);
+			//System.out.println(this.a);
+			System.out.println(((Outer)this).a);
+			System.out.println(Outer.this.a);
+			System.out.println(new Outer().a);
+		}
+	}
+
+	void method(){
+		class LocalClass extends Outer{
+			void method(){
+				System.out.println(a);
+				//System.out.println(this.a);
+				System.out.println(((Outer)this).a);
+				System.out.println(Outer.this.a);
+				System.out.println(new Outer().a);
+			}			
+		}
+		new LocalClass().method();
+	}
+}
+
+class Test{
+	public static void main(String... args){
+		new Outer.NestedClass().method();
+		new Outer().new MemberClass().method();
+		new Outer().method();
+	}
+}

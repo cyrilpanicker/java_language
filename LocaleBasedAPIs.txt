@@ -1,0 +1,599 @@
+public final class java.util.Locale{
+	
+	Locale(String language)
+	Locale(String language, String country)
+
+	public static final Locale ENGLISH
+	public static final Locale US
+
+	public static Locale getDefault()
+	public static void setDefault(Locale newLocale)
+
+	public static Locale[] getAvailableLocales()
+
+	public static String[] getISOCountries()
+	public static String[] getISOLanguages()
+
+	public String getLanguage()
+	public final String getDisplayLanguage()
+	public String getDisplayLanguage(Locale inLocale)
+
+	public String getCountry()
+	public final String getDisplayCountry()
+	public String getDisplayCountry(Locale inLocale)
+}
+
+-The language argument is a valid ISO Language Code. These codes are the lower-case, two-letter codes as defined by ISO-639.
+-The country argument is a valid ISO Country Code. These codes are the upper-case, two-letter codes as defined by ISO-3166.
+--------------------------------------------------------------------------------
+public class java.util.Date{
+
+	public Date()
+	public Date(long date)
+	public long getTime()
+	public void setTime(long time)
+}
+
+date - the milliseconds since January 1, 1970, 00:00:00 GMT.
+--------------------------------------------------------------------------------
+public abstract class java.util.Calendar{
+
+
+
+	//fields
+	public static final int ERA 0		//is given value AD(1) or BC(0) by subclass
+	public static final int YEAR 1		
+	public static final int MONTH 2 
+	public static final int WEEK_OF_YEAR 3	
+	public static final int WEEK_OF_MONTH 4 
+	public static final int DAY_OF_MONTH 5 
+	public static final int DATE 5			//is the same as DAY_OF_MONTH
+	public static final int DAY_OF_YEAR 6 
+	public static final int DAY_OF_WEEK 7 
+	public static final int DAY_OF_WEEK_IN_MONTH 8	
+	public static final int AM_PM 9
+	public static final int HOUR 10			//'1' for 1pm
+	public static final int HOUR_OF_DAY 11		//'13' for 1pm
+	public static final int MINUTE 12 
+	public static final int SECOND 13 
+	public static final int MILLISECOND 14 
+	public static final int ZONE_OFFSET 15 
+	public static final int DST_OFFSET 16 
+
+	public static final int FIELD_COUNT 17 
+
+
+	//values for style parameter
+	public static final int ALL_STYLES 0 
+	public static final int SHORT 1 
+	public static final int LONG 2
+
+
+	//values for AM_PM
+	public static final int AM 0 
+	public static final int PM 1
+
+
+	//values for MONTH
+	public static final int JANUARY 0 
+	public static final int FEBRUARY 1 
+	public static final int MARCH 2
+	public static final int APRIL 3
+	public static final int MAY 4 
+	public static final int JUNE 5
+	public static final int JULY 6 
+	public static final int AUGUST 7
+	public static final int SEPTEMBER 8
+	public static final int OCTOBER 9 
+	public static final int NOVEMBER 10 
+	public static final int DECEMBER 11 
+
+
+	//values for DAY_OF_WEEK
+	public static final int SUNDAY 1 
+	public static final int MONDAY 2 
+	public static final int TUESDAY 3 
+	public static final int WEDNESDAY 4 
+	public static final int THURSDAY 5 
+	public static final int FRIDAY 6 
+	public static final int SATURDAY 7 
+
+
+
+	public static Calendar getInstance()
+	public static Calendar getInstance(Locale aLocale)
+	
+	public final void setTime(Date date)
+	public final Date getTime()
+
+	public int get(int field)
+	public void set(int field, int value)
+	public final void set(int year, int month, int date)
+	public final void set(int year, int month, int date, int hourOfDay, int minute)
+	public final void set(int year, int month, int date, int hourOfDay, int minute, int second)
+
+	public String getDisplayName(int field, int style, Locale locale)
+
+	public int getFirstDayOfWeek()
+	public void setFirstDayOfWeek(int value)
+
+	public abstract void add(int field, int amount)
+	public void roll(int field, int amount)
+}
+--------------------------------------------------------------------------------
+public abstract class java.text.DateFormat{
+	
+
+	//values for formating style parameter
+	public static final int FULL 0 		
+	public static final int LONG 1 		
+	public static final int DEFAULT 2 	
+	public static final int MEDIUM 2 	
+	public static final int SHORT 3 	
+	 
+
+	public static final DateFormat getInstance()
+
+	public static final DateFormat getDateInstance()	
+	public static final DateFormat getDateInstance(int style)
+	public static final DateFormat getDateInstance(int style, Locale aLocale)
+
+	public static final DateFormat getTimeInstance()
+	public static final DateFormat getTimeInstance(int style)
+	public static final DateFormat getTimeInstance(int style, Locale aLocale)
+
+	public final String format(Date date)
+	public Date parse(String source) throws ParseException
+
+}
+--------------------------------------------------------------------------------
+public abstract class java.text.NumberFormat{
+
+	public static final NumberFormat getInstance()
+	public static NumberFormat getInstance(Locale inLocale)
+
+	public static final NumberFormat getNumberInstance()
+	public static NumberFormat getNumberInstance(Locale inLocale)
+
+	public static final NumberFormat getCurrencyInstance()
+	public static NumberFormat getCurrencyInstance(Locale inLocale)
+
+	public final String format(double number)
+	
+	public Number parse(String source) throws ParseException
+
+	public void setMaximumFractionDigits(int newValue)
+	public int getMaximumFractionDigits()
+
+	public void setParseIntegerOnly(boolean value)
+}
+--------------------------------------------------------------------------------
+import java.util.Locale;
+
+class Test{
+
+	public static void main(String[] args){
+
+		System.out.println("\nFew available locales : ");
+		Locale[] locales=Locale.getAvailableLocales();
+		for(int i=0;i<6;i++)System.out.println(locales[i]);
+
+		System.out.println("\nFew language codes : ");
+		String[] languageCodes=Locale.getISOLanguages();
+		for(int i=0;i<6;i++)System.out.println(languageCodes[i]);
+
+		System.out.println("\nFew country codes : ");
+		String[] countryCodes=Locale.getISOCountries();
+		for(int i=0;i<6;i++)System.out.println(countryCodes[i]);	
+
+		System.out.println("\nFor English Locale : ");
+		System.out.println("language code : "+Locale.ENGLISH.getLanguage());
+		System.out.println("country code : "+Locale.ENGLISH.getCountry());
+		System.out.println("language : "+Locale.ENGLISH.getDisplayLanguage());
+		System.out.println("country : "+Locale.ENGLISH.getDisplayCountry());
+		System.out.println("language diaplayed in german : "+Locale.ENGLISH.getDisplayLanguage(Locale.GERMAN));
+		System.out.println("country diplayed in german : "+Locale.ENGLISH.getDisplayCountry(Locale.GERMAN));
+
+		System.out.println("\nFor US Locale : ");
+		System.out.println("language code : "+Locale.US.getLanguage());
+		System.out.println("country code : "+Locale.US.getCountry());
+		System.out.println("language : "+Locale.US.getDisplayLanguage());
+		System.out.println("country : "+Locale.US.getDisplayCountry());
+		System.out.println("language diaplayed in german : "+Locale.US.getDisplayLanguage(Locale.GERMAN));
+		System.out.println("country diplayed in german : "+Locale.US.getDisplayCountry(Locale.GERMAN));
+	
+		System.out.println("\nFor default Locale : ");
+		System.out.println("language code : "+Locale.getDefault().getLanguage());
+		System.out.println("country code : "+Locale.getDefault().getCountry());
+		System.out.println("language : "+Locale.getDefault().getDisplayLanguage());
+		System.out.println("country : "+Locale.getDefault().getDisplayCountry());
+		System.out.println("language diaplayed in german : "+Locale.getDefault().getDisplayLanguage(Locale.GERMAN));
+		System.out.println("country diplayed in german : "+Locale.getDefault().getDisplayCountry(Locale.GERMAN));
+	}
+}
+
+output:
+
+Few available locales :
+ja_JP
+es_PE
+en
+ja_JP_JP
+es_PA
+sr_BA
+
+Few language codes :
+aa
+ab
+ae
+af
+ak
+am
+
+Few country codes :
+AD
+AE
+AF
+AG
+AI
+AL
+
+For English Locale :
+language code : en
+country code :
+language : English
+country :
+language diaplayed in german : Englisch
+country diplayed in german :
+
+For US Locale :
+language code : en
+country code : US
+language : English
+country : United States
+language diaplayed in german : Englisch
+country diplayed in german : Vereinigte Staaten von Amerika
+
+For default Locale :
+language code : en
+country code : IN
+language : English
+country : India
+language diaplayed in german : Englisch
+country diplayed in german : Indien
+--------------------------------------------------------------------------------
+
+import java.util.*;
+
+class Test{
+
+	public static void main(String[] args){
+
+		System.out.println("Time when a trillion milliseconds passed since January 1, 1970: "+new Date(1000000000000L));
+
+		System.out.println("Time when two trillion milliseconds will pass since January 1, 1970: "+new Date(2000000000000L));
+
+		System.out.println("Time now : "+new Date());
+
+		System.out.println("No. of milliseconds passed since since January 1, 1970 until now : "+new Date().getTime());
+
+		Date now=new Date();
+		Date tomorrow=new Date(now.getTime()+24*60*60*1000);
+		System.out.println("Same time tomorrow : "+tomorrow);
+
+		tomorrow.setTime(tomorrow.getTime()+24*60*60*1000);
+		Date dayAfter=tomorrow;
+		System.out.println("Same time a day after : "+dayAfter);
+	}
+}
+
+output:
+Time when a trillion milliseconds passed since January 1, 1970: Sun Sep 09 07:16
+:40 IST 2001
+Time when two trillion milliseconds will pass since January 1, 1970: Wed May 18
+09:03:20 IST 2033
+Time now : Thu Oct 18 11:50:20 IST 2012
+No. of milliseconds passed since since January 1, 1970 until now : 1350541220059
+
+Same time tomorrow : Fri Oct 19 11:50:20 IST 2012
+Same time a day after : Sat Oct 20 11:50:20 IST 2012
+--------------------------------------------------------------------------------
+
+import java.util.*;
+
+class Test{
+	public static void main(String... args){
+
+		Calendar now=Calendar.getInstance();
+
+		Calendar after2Hrs=Calendar.getInstance();
+		after2Hrs.add(Calendar.HOUR,2);		
+
+		Calendar after3Months=Calendar.getInstance();
+		after3Months.add(Calendar.MONTH,3);
+
+		Calendar nextYear=Calendar.getInstance();
+		nextYear.add(Calendar.YEAR,1);
+
+		Calendar[] calendars=new Calendar[]{now, after2Hrs, after3Months, nextYear};
+		
+		for(Calendar calendar:calendars){
+			System.out.println("\nTime : "+calendar.getTime());
+			System.out.println("Date : "+calendar.get(Calendar.DATE));
+			System.out.println("Day : "+calendar.getDisplayName(Calendar.DAY_OF_WEEK,Calendar.LONG,Locale.getDefault()));
+			System.out.println(calendar.get(Calendar.HOUR)+":"+calendar.get(Calendar.MINUTE)+":"+calendar.get(Calendar.SECOND)+"."+calendar.get(Calendar.MILLISECOND)+" "+calendar.getDisplayName(Calendar.AM_PM,Calendar.SHORT,Locale.getDefault()));
+		}
+				
+	}
+}
+--------------------------------------------------------------------------------
+import java.util.*;
+class Test{
+	public static void main(String... args){
+
+		Date date=new Date(1000000000000L);
+		System.out.println(date);
+
+		Calendar calendar=Calendar.getInstance();
+		calendar.setTime(date);
+		System.out.println(Calendar.SUNDAY==calendar.getFirstDayOfWeek());
+		
+		System.out.println(calendar.get(Calendar.DAY_OF_WEEK));
+
+		calendar.add(Calendar.MONTH,1);
+		System.out.println(calendar.getTime());
+
+		Calendar calendar1=Calendar.getInstance();
+		calendar1.add(Calendar.MONTH,-11);
+		System.out.println(calendar1.getTime());
+
+		Calendar calendar2=Calendar.getInstance();
+		calendar2.roll(Calendar.MONTH,-11);
+		System.out.println(calendar2.getTime());
+
+		Calendar calendar3=Calendar.getInstance();
+		calendar3.add(Calendar.DAY_OF_MONTH,1);
+		calendar3.add(Calendar.DATE,1);
+		calendar3.add(Calendar.DAY_OF_YEAR,1);
+		calendar3.add(Calendar.DAY_OF_WEEK,1);
+		System.out.println(calendar3.getTime());
+	}
+}
+
+output:
+Sun Sep 09 07:16:40 IST 2001
+true
+1
+Tue Oct 09 07:16:40 IST 2001
+Fri Nov 18 15:33:20 IST 2011
+Sun Nov 18 15:33:20 IST 2012
+Mon Oct 22 15:33:20 IST 2012
+--------------------------------------------------------------------------------
+import java.util.*;
+class Test{
+	public static void main(String... args){
+
+		Calendar calendar1=Calendar.getInstance();
+		calendar1.set(Calendar.DATE,9);
+		calendar1.set(Calendar.MONTH,Calendar.SEPTEMBER);
+		calendar1.set(Calendar.YEAR,2012);
+
+		System.out.println("\n"+calendar1.getTime());
+		System.out.println("first day of week : "+calendar1.getFirstDayOfWeek());
+		System.out.println("week of the month if week starts with Sunday : "+calendar1.get(Calendar.WEEK_OF_MONTH));
+		System.out.println("week of the month if first 7 days form a week : "+calendar1.get(Calendar.DAY_OF_WEEK_IN_MONTH));
+
+		Calendar calendar2=Calendar.getInstance();
+		calendar2.setFirstDayOfWeek(Calendar.MONDAY);
+		calendar2.set(Calendar.DAY_OF_MONTH,9);
+		calendar2.set(Calendar.MONTH,Calendar.SEPTEMBER);
+		calendar2.set(Calendar.YEAR,2012);
+		
+		System.out.println("\n"+calendar2.getTime());
+		System.out.println("first day of week : "+calendar2.getFirstDayOfWeek());
+		System.out.println("week of the month if week starts with Monday: "+calendar2.get(Calendar.WEEK_OF_MONTH));
+		System.out.println("week of the month if first 7 days form a week : "+calendar2.get(Calendar.DAY_OF_WEEK_IN_MONTH));
+	}
+}
+
+ ---------------------------------------------------------------
+|			September 2012				|
+|---------------------------------------------------------------|
+|	Sun	Mon	Tue	Wed	Thu	Fri	Sat	|
+|							1	|
+|	2	3	4	5	6	7	8	|
+|	9	10	11	12	13	14	15	|
+|	16	17	18	19	20	21	22	|
+|	23	24	25	26	27	28	29	|
+|	30							|
+ ---------------------------------------------------------------
+
+output:
+
+first day of week : 1
+week of the month if week starts with Sunday : 3
+week of the month if first 7 days form a week : 2
+
+Sun Sep 09 16:51:44 IST 2012
+first day of week : 2
+week of the month if week starts with Monday: 2
+week of the month if first 7 days form a week : 2					
+--------------------------------------------------------------------------------
+import java.util.*;
+import java.text.*;
+class Test{
+	public static void main(String... args){
+		
+		Date date=Calendar.getInstance().getTime();
+
+		DateFormat[] formats=new DateFormat[]{
+			
+			DateFormat.getInstance(),
+
+			DateFormat.getDateInstance(),
+
+			DateFormat.getDateInstance(DateFormat.SHORT),
+			DateFormat.getDateInstance(DateFormat.MEDIUM),
+			DateFormat.getDateInstance(DateFormat.DEFAULT),
+			DateFormat.getDateInstance(DateFormat.LONG),
+			DateFormat.getDateInstance(DateFormat.FULL),
+
+			DateFormat.getDateInstance(DateFormat.FULL, Locale.GERMAN),
+
+			DateFormat.getTimeInstance(),
+
+			DateFormat.getTimeInstance(DateFormat.SHORT),
+			DateFormat.getTimeInstance(DateFormat.MEDIUM),
+			DateFormat.getTimeInstance(DateFormat.DEFAULT),
+			DateFormat.getTimeInstance(DateFormat.LONG),
+			DateFormat.getTimeInstance(DateFormat.FULL),
+
+			DateFormat.getTimeInstance(DateFormat.FULL, Locale.GERMAN)
+		};
+
+		for(DateFormat format : formats)System.out.println(format.format(date));
+
+		String dateString=formats[2].format(date);
+		System.out.println("\nformatted date string : "+dateString);
+
+		try{
+			System.out.println("\nfirst try");
+			date=formats[6].parse(dateString);
+			System.out.println("date parsed from date string : "+date);
+		}catch(ParseException exception){
+			System.out.println("formats do no match");
+		}	
+
+		try{
+			System.out.println("\nsecond try");
+			date=formats[2].parse(dateString);
+			System.out.println("date parsed from date string : "+date);
+		}catch(ParseException exception){
+			System.out.println("formats do no match");
+		}
+	}
+}
+
+output:
+18/10/12 6:00 PM
+18 Oct, 2012
+18/10/12
+18 Oct, 2012
+18 Oct, 2012
+18 October, 2012
+Thursday, 18 October, 2012
+Donnerstag, 18. Oktober 2012
+6:00:34 PM
+6:00 PM
+6:00:34 PM
+6:00:34 PM
+6:00:34 PM IST
+6:00:34 PM IST
+18:00 Uhr IST
+
+formatted date string : 18/10/12
+
+first try
+formats do no match
+
+second try
+date parsed from date string : Thu Oct 18 00:00:00 IST 2012
+--------------------------------------------------------------------------------
+import java.util.*;
+import java.text.*;
+class Test{
+	public static void main(String... args){
+
+		NumberFormat[] formats=new NumberFormat[]{
+
+			NumberFormat.getInstance(),
+			NumberFormat.getInstance(Locale.US),
+
+			NumberFormat.getNumberInstance(new Locale("en","IN")),
+			NumberFormat.getNumberInstance(Locale.US),
+
+			NumberFormat.getCurrencyInstance(),
+			NumberFormat.getCurrencyInstance(Locale.US),
+		};
+
+		double number=8575263.235235789;
+		
+		for(NumberFormat format : formats)System.out.println(format.format(number));
+
+		String formattedNumber=formats[5].format(number);
+		double parsedNumber;
+
+		System.out.println("\nformatted number string : "+formattedNumber);
+
+		try{
+			System.out.println("\nfirst try");
+			parsedNumber=(Double)formats[1].parse(formattedNumber);
+			System.out.println("parsed number : "+parsedNumber);
+		}catch(ParseException exception){
+			System.out.println("formats do not match");
+		}
+
+		try{
+			System.out.println("\nsecond try");
+			parsedNumber=(Double)formats[5].parse(formattedNumber);
+			System.out.println("parsed number : "+parsedNumber);			
+		}catch(ParseException exception){
+			System.out.println("formats do not match");
+		}
+
+
+
+
+		NumberFormat fractionLimitedFormat=NumberFormat.getInstance();
+		fractionLimitedFormat.setMaximumFractionDigits(2);
+		
+		System.out.println("\nmaximum no. of fractional digits allowed for fractionLimitedFormat : "+fractionLimitedFormat.getMaximumFractionDigits());
+
+		System.out.println("formatted with fractionLimitedFormat : "+fractionLimitedFormat.format(number));
+
+		try{
+			System.out.println("parsed \"52,632,963.9685423\" with fractionLimitedFormat : "+fractionLimitedFormat.parse("52,632,963.9685423"));
+		}catch(ParseException exception){
+			System.out.println("error occured while parsing");
+		}
+
+
+
+		
+		NumberFormat integerParser=NumberFormat.getInstance();
+		integerParser.setParseIntegerOnly(true);
+
+		System.out.println("\nformatted with integerParser : "+integerParser.format(number));
+
+		try{
+			System.out.println("parsed \"52,632,963.9685423\" with integerParser : "+integerParser.parse("52,632,963.9685423"));
+		}catch(ParseException exception){
+			System.out.println("error occured while parsing");
+		}
+
+	}
+}
+
+output:
+8,575,263.235
+8,575,263.235
+8,575,263.235
+8,575,263.235
+Rs.8,575,263.24
+$8,575,263.24
+
+formatted number string : $8,575,263.24
+
+first try
+formats do not match
+
+second try
+parsed number : 8575263.24
+
+maximum no. of fractional digits allowed for fractionLimitedFormat : 2
+formatted with fractionLimitedFormat : 8,575,263.24
+parsed "52,632,963.9685423" with fractionLimitedFormat : 5.26329639685423E7
+
+formatted with integerParser : 8,575,263.235
+parsed "52,632,963.9685423" with integerParser : 52632963
+--------------------------------------------------------------------------------

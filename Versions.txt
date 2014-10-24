@@ -1,0 +1,14 @@
+-jdk 1.4
+	-assertion mechanism and "assert" keyword was added
+
+-jdk 1.5
+	-enums were added
+	-static imports feature was added
+	-var-args feature was added
+	-covariant return values were allowed from overriding methods
+	-auto-boxing and auto-unboxing feature was added
+	-objects of Boolean class were allowed in boolean tests
+	
+-jdk 1.6
+	-enums were allowed in switch-case
+	-enhanced for loop was added

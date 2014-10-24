@@ -1,0 +1,199 @@
+Exception handling 
+
+class TestException extends Exception{}
+
+class Test{
+	
+	static void method1() throws TestException{
+		System.out.println("6");
+		throw new TestException();
+	}
+
+	static void method2 ()throws Exception{
+		System.out.println("4");
+		try{
+			System.out.println("5");
+			method1();
+		}
+		catch(Exception exception){
+			try{
+				System.out.println("7");
+				throw exception;
+			}
+			catch(Exception exception1){
+				System.out.println("8");
+				throw exception1;
+			}
+			finally{
+				System.out.println("9");
+			}
+		}
+		finally{
+			System.out.println("10");
+		}
+	}
+	
+	public static void main(String... args) throws TestException{
+		System.out.println("1");
+		try{
+			System.out.println("2");
+			try{
+				System.out.println("3");
+				method2();
+			}
+			finally{
+				System.out.println("11");
+				throw new TestException();
+			}
+		}
+		catch(TestException exception){
+			System.out.println("12");
+			throw exception;
+		}
+		finally{
+			System.out.println("13");
+			try{
+				System.out.println("14");
+			}
+			finally{
+				System.out.println("15");
+			}
+			System.out.println("16");
+		}
+	}
+}
+------------------------------------------------------------------------------------------
+
+import java.io.IOException;
+
+class Test {
+	
+	public static void main(String... args){
+		try{}
+		catch(Exception exception){}   //no error
+		try{
+			throw new ArithmeticException();
+		}
+		//catch(IOException ioexception){}  //error
+		catch(Exception exception){}  //no error
+	}
+}
+
+'Exception' is the only exception which has both checked and unchecked exceptions as its subtypes.
+Thus exception handler for 'Exception' expects both checked as well as unchecked exceptions to be caught.
+
+Exception handlers for checked exception other than 'Exception' will be unreachable if the try block doesn't throw or doesn't declare the particular exception.
+---------------------------------------------------------------------
+class Test{
+	public static void main(String... args){
+		int initializedInTry;
+		int declaredAndInitializedOutsideTry=20;
+		try{
+			initializedInTry=10;
+			int declaredAndInitializedInTry=5;
+			System.out.println(declaredAndInitializedInTry);
+			System.out.println(declaredAndInitializedOutsideTry);
+			throw new ArithmeticException();
+		}
+		catch(Exception exception){
+			//System.out.println(declaredAndInitializedInTry);  
+			//System.out.println(initializedInTry);
+			System.out.println(declaredAndInitializedOutsideTry);
+		}
+		finally{
+			//System.out.println(declaredAndInitializedInTry);  
+			//System.out.println(initializedInTry);
+			System.out.println(declaredAndInitializedOutsideTry);
+			int declaredAndInitializedInFinally=20;
+		}
+		//System.out.println(declaredAndInitializedInFinally);
+		//System.out.println(initializedInTry);
+		//System.err.println(declaredAndInitializedInTry);
+		System.out.println(declaredAndInitializedOutsideTry);
+	}
+}
+declarations and initializations happening in individual blocks are unknown outside the blocks
+-------------------------------------------------------------------------------------
+
+class Test{
+	public static void main(String[] args){
+		try{
+			int a=10;
+			try{
+				//int a=20;  //error
+				int b=30;
+				throw new Exception();
+			}
+			catch (Exception e) {}
+			throw new Exception();
+		}
+		catch(Exception e1){
+			int a=20;
+			try{
+				//int a=60;  //error
+				int b=50;
+			}
+			//catch(NullPointerException e1){}  //error  <--  important
+			catch(Exception e2){
+				//int a=30;  //error
+				int b=40;
+			}
+		}
+	}
+}
+
+nested blocks cannot declare the same reference variable as the outer one.
+----------------------------------------------------------------------------------------
+
+class TestException extends Exception {}
+class TestExceptionChild extends TestException{}
+class UnrelatedException extends Exception{}
+
+class Test {
+	
+	static void method() throws TestException{
+		//throw new UnrelatedException();  //error
+		try {
+			throw new TestException();
+		} catch (Exception e) {
+			throw new TestExceptionChild();
+		}
+		
+	}
+	
+	static void method1(){   //<----no exception declaration
+		//throw (Exception)new RuntimeException();  //error
+		Exception exception= new RuntimeException();
+		//throw exception;  //error
+		try{
+			throw new RuntimeException();
+		}
+		catch(Exception exception2){
+			//throw exception2;  //error
+		}
+		finally{
+			//throw exception;
+		}
+		throw new RuntimeException();
+	}
+	
+	static void method2()throws TestException{
+		//throw (Exception)new TestException();
+		Exception exception=new TestException();
+		//throw exception;  //error
+		try{
+			throw new TestException();
+		}
+		catch(Exception exception2){
+			//throw exception2;  //error
+			throw new TestException();
+		}
+		finally{
+			//throw exception;  //error
+			throw new TestExceptionChild();
+		}
+	}
+}
+-a method can throw only those checked exceptions which are either same or subtypes of the declared checked exceptions of the method.
+-the type of exception thrown is checked at compile time.
+------------------------------------------------------------------------------------------

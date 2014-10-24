@@ -1,0 +1,71 @@
+Exceptions
+
+
+-RuntimeException 
+
+     -ArithmeticException  
+
+     -ClassCastException 
+
+     -SecurityException 
+
+     -NullPointerException 
+     -TypeNotPresentException 
+     -EnumConstantNotPresentException 
+
+     -ArrayStoreException 
+     -NegativeArraySizeException 
+     -IndexOutOfBoundsException 
+          -ArrayIndexOutOfBoundsException 
+          -StringIndexOutOfBoundsException
+
+     -IllegalArgumentException 
+          -IllegalThreadStateException 
+          -NumberFormatException 
+     -IllegalMonitorStateException 
+     -IllegalStateException 
+     -UnsupportedOperationException
+
+---------------------------------------------------------------------
+NullPointerException
+
+- String a=null; a.charAt(2);
+- int[] b=null; System.out.println(b.length);
+- throw null;
+-----------------------------------------------------------------
+TypeNotPresentException
+
+Thrown when an application tries to access a type using a string representing the type's name, but no definition for the type with the specified name can be found.
+------------------------------------------------------------------
+EnumConstantNotPresentException
+
+Thrown when an application tries to access an enum constant by name and the enum type contains no constant with the specified name.
+---------------------------------------------------------------------
+ArrayStoreException
+
+Thrown to indicate that an attempt has been made to store the wrong type of object into an array of objects. For example, the following code generates an ArrayStoreException:
+
+     Object x[] = new String[3];
+     x[0] = new Integer(0);
+---------------------------------------------------------------------
+NegativeArraySizeException
+
+Thrown if an application tries to create an array with negative size.
+-------------------------------------------------------------------------
+UnsupportedOperationException
+
+This class is a member of the Java Collections Framework. Thrown to indicate that the requested operation is not supported by the collection.
+---------------------------------------------------------------------------
+IllegalMonitorStateException 
+
+Thrown to indicate that a thread has attempted to wait on an object's monitor or to notify other threads waiting on an object's monitor without owning the specified monitor.
+----------------------------------------------------------------------
+Checked exceptions
+
+-Exception
+	-IOException
+		-FileNotFoundException
+		-EOFException
+		-InterruptedIOException
+		-CharConversionException
+----------------------------------------------------------------------

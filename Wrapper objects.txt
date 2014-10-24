@@ -1,0 +1,112 @@
+	
+		Integer a = new Integer(2);
+		Byte b = new Byte(new Integer(2).byteValue());
+		Float c=new Float(23.6);
+		Character d=new Character('k');
+		
+		Double e=new Double("56.38");
+		
+		Long f=Long.valueOf("52");
+		Short g=Short.valueOf("32767",10);
+
+Creating wrapper objects.
+-using constructors which accept the corresponding primitive datatype.
+-float wrapper objects can also be created using double values.
+-using constructors which accept string ...except for Character objects
+-using static 'valueOf' method of the wrapper classes which accepts string. For integer types, this method accepts an optional 2nd argument which specifies the base.
+-for creating Boolean object with String, if the String's case-insensitive value is "true" the Boolean will
+be true—any other value will equate to false.
+--------------------------------------------------------------------------------
+
+Byte b = new Byte(new Integer(2).byteValue());
+
+Conversion between numeric datatypes.
+-each of the six numeric wrapper classes have six instance methods which can be used for conversion. These methods return primitive datatypes and not objects.
+byteValue()
+shortValue()
+intValue()
+longValue()
+floatValue()
+doubleValue()
+--------------------------------------------------------------------------------
+
+		byte a = Byte.parseByte("52", 10);
+		byte b = Byte.valueOf("52", 10);  //Byte object is created and then unboxed
+		
+		float c=Float.parseFloat("2.36");
+		
+		int d=Integer.parseInt("52");
+
+Converting string to numeric types.
+-each of the numeric wrapper classes have static parse method which can be used for parsing string to corresponding primitive numeric datatype.
+-for the 4 integer types, this method accepts an optional 2nd argument which specifies the base.
+--------------------------------------------------------------------------------
+		String a=Float.toString(25.6F);
+		String b=Byte.toString(new Integer(52).byteValue());
+		
+		String c=Integer.toString(52);
+		String d=Integer.toString(52, 10);
+		String e=Integer.toBinaryString(52);
+		String f=Integer.toOctalString(5);
+		String g=Integer.toHexString(52);
+
+Converting numeric types to string
+-each of the numeric wrapper classes have a static toString() method which accepts the primitive datatype and returns a string.
+-Integer and Long also accept 2nd argument which specifies the base.
+-Integer and Long also have toBinaryString, toOctalString, and toHexString which directly convert values to string
+--------------------------------------------------------------------------------
+
+		Integer a=new Integer(52);
+		Integer b=new Integer("52");
+		Byte c=new Byte(new Integer(52).byteValue());
+		
+		System.out.println(a.equals(b));
+		System.out.println(a.equals(c));
+output:
+true
+false
+
+-the equals method in wrapper classes is overridden such that two wrapper objects are equal only when there types are the same and they hold the same primitive value, similar to strings.
+--------------------------------------------------------------------------------
+class Test {
+	public static void main(String[] args) {
+		byte a=56;
+		int b=56;
+		Byte byte1=52;
+		Byte byte2=new Byte(new Integer(52).byteValue());
+		Byte byte3=52;
+		Integer integer=52;
+		
+		Long long1=52L;
+		Long long2=52L;
+		Long long3=128L;
+		Long long4=128L;
+		
+		Character character='\u007F';
+		Character character2='\u007F';
+		Character character3='\u0080';
+		Character character4='\u0080';
+		
+		Boolean boolean1=true;
+		Boolean boolean2=false;
+		Boolean boolean3=true;
+		
+		System.out.println(byte1==byte2);//false
+		System.out.println(byte1==byte3);//true
+		System.out.println(byte2==byte3);//false
+		System.out.println(character==character2);//true
+		System.out.println(character3==character4);//false
+		System.out.println(long1==long2);//true
+		System.out.println(long3==long4);//false
+		System.out.println(boolean1==boolean3);//true
+		
+		//System.out.println(byte1==integer);  //compiler error
+		System.out.println(a==integer);//true
+		
+		System.out.println(a==b);//true
+	}
+}
+
+-Wrapper objects are immutable, similar to strings.
+
+-unless a new object is created using a method of the Wrapper class, boolean object or any wrapper object of integer type wrapping up a value that fits into 1 byte, picks up the value from the constant pool if available, similar to strings.

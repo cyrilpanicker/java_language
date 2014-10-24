@@ -1,0 +1,248 @@
+Type conversion, Boxing, Unboxing
+
+class Test {
+	public static void main(String[] args) {
+		//double a=0x2.3;  //error
+		//float b=0x2.3F;  //error
+		
+		double c=02.3;
+		float d=02.3F;
+		
+		int e=023;
+		
+		System.out.println(e+", "+c+", "+d);
+	}
+}
+
+output:
+19, 2.3, 2.3
+
+
+float and double literals cannot be expressed in hex format.
+float and double literals in octal format are simply taken as decimal format and its prefix is ignored.
+-------------------------------------------------------------------------------------------------------
+
+char type variables can be assigned any character literal ('\u0000' to '\uFFFF').
+they can also be assigned integer literals from 0 to 65535(or 0x0 to 0xFFFF).
+integer literals outside this range can be assigned with an explicit cast.
+long literals, float literals and double literals can be assigned with an explicit cast.
+all numeric type variables can be assigned with explicit cast.
+		charVariable = 0xFFFF;
+		charVariable = 65535;
+		charVariable = 0;
+		charVariable = '\uFFFF';
+		charVariable = (char) 0x10000;
+		charVariable = (char) 65536;
+		charVariable = (char) -1;
+		charVariable = (char) 1253L;
+		charVariable = (char) 65.3F;
+		charVariable = (char) 65.366;
+		charVariable = (char) byteVariable;
+		charVariable = (char) shortVariable;
+		charVariable = (char) intVariable;
+		charVariable = (char) longVariable;
+		charVariable = (char) floatVariable;
+		charVariable = (char) doubleVariable;
+
+
+
+byte type variables can be assigned integer literals from -128 to 127(0x007F).
+they can also be assigned character literals from '\u0000' to '\u007F'.
+integer literals and character literals outside this range can be assigned with explicit cast.
+long literals, float literals and double literals can be assigned with an explicit cast.
+all higher numeric type variables and character variables can be assigned with explicit cast.
+		byteVariable = 127;
+		byteVariable = -128;
+		byteVariable = '\u007F';
+		byteVariable = (byte) 128;
+		byteVariable = (byte) -129;
+		byteVariable = (byte) '\u0080';
+		byteVariable = (byte) '\uFFFF';
+		byteVariable = (byte) 65.3F;
+		byteVariable = (byte) 65.664;
+		byteVariable = (byte) 656L;
+		byteVariable = (byte) charVariable;
+		byteVariable = (byte) shortVariable;
+		byteVariable = (byte) intVariable;
+		byteVariable = (byte) longVariable;
+		byteVariable = (byte) floatVariable;
+		byteVariable = (byte) doubleVariable;
+
+
+
+short type variables can be assigned integer literals from -32768 to 32767(0x7FFF).
+they can also be assigned character literals from '\u0000' to '\u7FFF'.
+integer literals and character literals outside this range can be assigned with explicit cast.
+long literals, float literals and double literals can be assigned with an explicit cast.
+all lower numeric type variables (byte) can be assigned.
+all higher numeric type variables and character variables can be assigned with explicit cast.
+		shortVariable = 32767;
+		shortVariable = -32768;
+		shortVariable = '\u7FFF';
+		shortVariable = byteVariable;
+		shortVariable = (short) 32768;
+		shortVariable = (short) -32769;
+		shortVariable = (short) '\u8000';
+		shortVariable = (short) 3650.256F;
+		shortVariable = (short) 3669L;
+		shortVariable = (short) 65.36;
+		shortVariable = (short)charVariable;
+		shortVariable = (short) intVariable;
+		shortVariable = (short) longVariable;
+		shortVariable = (short) floatVariable;
+		shortVariable = (short) doubleVariable;
+
+
+
+int type variables can be assigned all integer literals(it does have a limit, but we ignore the limit).
+they can also be assigned all character literals ('\u0000' to '\uFFFF').
+long literals, float literals and double literals can be assigned with an explicit cast.
+all lower numeric type variables and char variables can be assigned.
+all higher numeric type variables can be assigned with explicit cast.
+		intVariable = '\uFFFF';
+		intVariable = 461546;
+		intVariable = byteVariable;
+		intVariable = shortVariable;
+		intVariable = charVariable;
+		intVariable = (int) 63L;
+		intVariable = (int) 63.25F;
+		intVariable = (int) 63.36;
+		intVariable = (int) longVariable;
+		intVariable = (int) floatVariable;
+		intVariable = (int) doubleVariable;
+
+
+
+long type variables can be assigned all integer literals, character literals and long literals.
+float literals and double literals can be assigned with an explicit cast.
+all lower numeric type variables and char variables can be assigned.
+all higher numeric type variables can be assigned with explicit cast.
+		longVariable = '\uFFFF';
+		longVariable = 6684646;
+		longVariable = 56468L;
+		longVariable = byteVariable;
+		longVariable = shortVariable;
+		longVariable = intVariable;
+		longVariable = charVariable;
+		longVariable = (long) 36.6F;
+		longVariable = (long) 54.66;
+		longVariable = (long) floatVariable;
+		longVariable = (long) doubleVariable;
+
+
+
+float type variables can be assigned all integer literals, character literals, long literals and float literals.
+double literals can be assigned with an explicit cast.
+all lower numeric type variables and char variables can be assigned.
+all higher numeric type variables(double) can be assigned with explicit cast.
+		floatVariable = '\uFFFF';
+		floatVariable = 565516136;
+		floatVariable = 6568464L;
+		floatVariable = 65.5165F;
+		floatVariable = byteVariable;
+		floatVariable = shortVariable;
+		floatVariable = intVariable;
+		floatVariable = longVariable;
+		floatVariable = charVariable;
+		floatVariable = (float) 4866.5456;
+		floatVariable = (float) doubleVariable;
+
+
+
+double type variables can be assigned all kinds of literals.
+all numeric type variables and char variables can be assigned.
+		doubleVariable = '\uFFFF';
+		doubleVariable = 65.666F;
+		doubleVariable = 546663556;
+		doubleVariable = 684665L;
+		doubleVariable = 546.546;
+		doubleVariable = byteVariable;
+		doubleVariable = shortVariable;
+		doubleVariable = intVariable;
+		doubleVariable = longVariable;
+		doubleVariable = floatVariable;
+		doubleVariable = charVariable;
+
+
+
+Implicit casting of literals do not happen when a literal is assigned to a wrapper reference variable.
+
+Long requires long literal
+long a=23;
+Long b=23 --> error
+Long c=23L
+
+Float requires float literal
+float a=12;
+Float b=12;  --> error
+Float c=12.2F;
+
+Double requires double literal
+double a=12;
+double b=52.3F;
+Double c=12;  --> error
+Double d=52.3F;  --> error
+Double e=52.3;
+
+
+However integer literals can be assigned to Byte, Short or Character reference variable, if the size of the literal fall in their ranges.
+
+Byte a=127;
+Byte b=128;  --> error
+Short c=32767;
+Short d=32768;  --> error
+Character a=65535;
+Character b=65536; --> error
+
+For direct literal assignment, both 'type of data' and 'data' are checked.
+
+However for method calls and constructor calls, only 'type of data' of parameter and argument are checked for compatibility. 
+
+method(byte b){....}
+method(12)           --> error
+
+new Byte(12)   --> error, signature is Byte(byte)
+
+class Main{
+	public static void main(String[] args){
+		System.out.println("integer : "+Integer.toString('a'));
+		//System.out.println("float : "+Float.toString(2.3));//error
+		System.out.println("double : "+Double.toString(2.3F));
+		//System.out.println("byte : "+Byte.toString(2));//error
+		System.out.println("byte : "+Byte.toString(new Integer(2).byteValue()));
+	}
+}
+
+Other than a literal assignment to a wrapper reference variable, whenever a 
+primitive value is used in context of an object (the primitive needs to be boxed),
+integer literal is boxed to Integer object.
+long literal is boxed to Long object
+character literal is boxed to Character object
+float literal is boxed to Float object.
+double literal is boxed to Double object.
+
+Integer a=(Integer)56;
+Byte byte1=(Byte)56;  --> error
+
+These objects are not compatible with each other as they fail IS-A test.
+
+Whenever a wrapper object is used in context of a primitive, the object is unboxed with its primitive type corresponding to the type of wrapper object.
+
+class Main{
+	public static void main(String[] args){
+		Long a=12L;
+		int b=a;//error: a unboxes to long variable
+	}
+}
+
+-----
+class Main{
+	public static void main(String[] args){
+		Byte a=12;
+		Byte b=2+3;
+		Byte c=127;
+		Byte d=127+1;//error
+		Byte e=1;
+		e+=c;//error: for calculation, e and c are unboxed to byte variables, they are promoted to int variables. But now they can be boxed onlt to integers
+	}
+}

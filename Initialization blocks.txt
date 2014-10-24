@@ -1,0 +1,53 @@
+Initialization blocks
+
+eg.
+
+class Demo {
+	
+	static int a = 10;										//1
+
+	static {
+		System.out.println("static block with paranthesis : " + a);	        //2
+	}
+	
+	private int b=30;										//3
+
+	{
+		System.out.println("block with paranthesis "+b);			//4
+	}
+
+}
+
+All of the above 4 statements within the class are initialization statements. These statements are executed in the order in which they are declared. Variables cannot be used before they are declared. Thus line 2 cannot appear before line 1 and line 4 cannot appear before line 3. Only declaration statements can be written without parentheses. Local classes can also be declared within initialization block.
+--------------------------------------------------------------------
+
+-static initialization blocks run just when the class is loaded.
+-instance initialization blocks run just after super class constructor runs.
+
+class SuperClass{
+	static{System.out.println("super class static initialization block");}
+	{System.out.println("super class initialization block");}
+	SuperClass(){System.out.println("super class constructor");}
+}
+
+class SubClass extends SuperClass{
+	static{System.out.println("sub class static initialization block");}
+	{System.out.println("sub class initialization block");}
+	SubClass(){System.out.println("sub class constructor");}
+}
+
+public class Test {
+	public static void main(String[] args) {
+		new SubClass();
+	}
+}
+
+
+output:
+super class static initialization block
+sub class static initialization block
+super class initialization block
+super class constructor
+sub class initialization block
+sub class constructor
+----------------------------------------------------------------------------

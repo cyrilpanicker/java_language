@@ -1,0 +1,665 @@
+-nested class	
+	^
+	|	-class definition is within a class or an interface
+	|	
+	|
+	|
+	|
+	-static nested class 	
+	|
+	|	-independent class namespace-scoped within enclosed class.
+	|	-instances of these classes have no reference to the enclosing instance.
+	|	-cannot access instance variables and methods of the enclosing class.
+	|	-can have static member declarations.
+	|	-can refer to static variables and methods of the enclosing class just like other static members of enclosing class.
+	|	-Nested interfaces are implicitly static.		
+	|
+	|
+	|
+	|
+	-inner class	
+		^
+		|	-cannot have static declarations other than "static compile-time constant" declarations
+		|	
+		|
+		|
+		|
+		-member class	
+		|
+		|	-has reference of the enclosing instance.
+		|	-can access instance variables and methods of the enclosing class. 
+		|		
+		|
+		|
+		|
+		|
+		|
+		|
+		-local class	
+		|	^		
+		|	|	-class definition is within a method.
+		|	|	-cannot access non-final local variables of the enclosing method.
+		|	|
+		|	|
+		|	|
+		|	|
+		|	|	
+		|	-local class in instance method
+		|	|
+		|	|	-has reference to the enclosing instance.
+		|	|	-can access instance variables and methods of the enclosing class. 
+		|	|
+		|	|	
+		|	|
+		|	|
+		|	-local class in static method
+		|
+		|		-has no reference of the enclosing instance.
+		|		-cannot access instance variables and methods of the enclosing class.
+		|
+		|
+		|
+		|
+		|
+		|
+		-anonymous class
+			^
+			|	-extends a known type
+			|
+			|	
+			|
+			|
+			-anonymous instance member object
+			|	
+			|	-has reference of the enclosing instance.
+			|	-can access instance variables and methods of the enclosing class.
+			|
+			|
+			|
+			|	 
+			-anonymous static member object
+			|
+			|	-has no reference of the enclosing instance.
+			|	-cannot access instance variables and methods of the enclosing class.
+			|
+			|
+			|
+			|
+			-anonymous local object in instance method
+			|
+			|	-cannot access non-final local variables of the enclosing method.
+			|	-has reference of the enclosing instance.
+			|	-can access instance variables and methods of the enclosing class. 
+			|
+			|
+			|
+			-anonymous local object in static method
+
+				-cannot access non-final local variables of the enclosing method.
+				-has no reference of the enclosing instance.
+				-cannot access instance variables and methods of the enclosing class.
+
+
+
+---------------------------------------------------------------------------------
+class Outer {
+	private int a = 10;
+	private static int b = 100;
+
+	class Inner {
+		private int a = 20;
+		final static int b = 200;
+
+		void method() {
+			System.out.println(a + ", " + b + ", " + Outer.b + ", " + this.a);
+			System.out.println(Outer.this.a + ", " + Outer.this.b + ", "
+					+ new Outer().a + ", " + new Outer().b);
+			System.out.println(b+", "+Inner.b+", "+Outer.b+", "+this.b+", "+Outer.this.b);
+		}
+	}
+	
+	void method1(){
+		System.out.println(this.a+", "+Outer.this.a);
+	}
+}
+
+class Main{
+	public static void main(String[] args) {
+		new Outer().new Inner().method();
+		new Outer().method1();
+	}
+}
+
+Outer class object tied to the Inner class object can be referred as Outer.this
+For top-level class, Outer.this and this are the same. But for an inner class, Outer.this and this refer to outer class object and inner class object respectively.
+--------------------------------------------------------------------------------
+
+class Test{
+
+	static class Nested{
+		Test test=Test.this;	//error; no reference to enclosing instance due to static context. This is a static nested class.
+	}
+
+
+
+	class Member{
+		Test test=Test.this;
+	}
+
+
+
+	void method(){
+		class Local{
+			Test test=Test.this;
+		}
+
+	}
+
+	static void method1(){
+		class Local{
+			Test test=Test.this;	//error; no reference to enclosing instance due to static context. 
+		}
+	}
+	
+}
+--------------------------------------------------------------------------------
+-objects of anonymous types can be created using a nested class definition:
+
+ParentType parentType=new ParentType(){//class definition};
+
+This is conceptually similar to:
+
+class <AnonymousType> extends ParentType{//class definition}
+ParentType parentType=new <AnonymousType>();
+--------------------------------------------------------------------------------
+
+class Animal{}
+
+class Test{
+
+	static Animal animal=new Animal(){
+		Test test=Test.this;	//error; no reference to enclosing instance due to static context. 
+	};
+
+
+	Animal animal1=new Animal(){
+		Test test=Test.this;
+	};
+
+
+	void method(){
+		Animal animal=new Animal(){
+			Test test=Test.this;
+		};
+	}
+
+	static void method1(){
+		Animal animal=new Animal(){
+			Test test=Test.this;	//error; no reference to enclosing instance due to static context. 
+		};
+	}
+	
+}
+--------------------------------------------------------------------------------
+class Main {
+	private static int a = 10;
+	private static int b=20;
+	private int c=30;
+	
+	enum Color{RED, GREEN, BLUE};
+	
+	class Animal{}
+
+	class Inner{
+		static final int a=20;
+		static final String b="cyril";
+		static final int c;//compiler error
+		static final Animal animal;//compiler error
+		static final Color RED=Color.BLUE;//compiler error
+		static final String d=new String("cyril");//compiler error
+		static final Byte e=20;//compiler error
+		static final void method(){}//compiler error
+	}
+	
+}
+
+Inner classes cannot have static declarations. However static final variables initialized with compile time constants are allowed. Final variables 'initialized' with compile time constants act as literals and only static literal creation is allowed in an inner class.
+Static declarations are allowed only in top-level or static types.
+--------------------------------------------------------------------------------
+class Outer{
+	class Inner{
+		private int a=10;
+	}
+	void method(){
+		System.out.println(new Inner().a);
+	}
+}
+Access levels specified for members of the nested class are actually applicable for the top level (outermost) class. Thus a private member of nested class is actually private to the outer class and can be accessed from anywhere within the outer class.
+-------------------------------------------------------------------------------
+class Animal{}
+
+class Main{
+	void method(){
+		int a=10;
+		Animal animal=new Animal();
+		final int a1=20;
+		final Animal animal1=new Animal();
+		class DemoLocalClass{
+			static int b=52;//error
+			void method(){
+				System.out.println(a);//error
+				System.out.println(animal);//error
+				System.out.println(a1);
+				System.out.println(animal1);
+			}
+		}
+		new DemoLocalClass().method();
+	}
+}
+
+-Local classes  can be instantiated / referred only within the method in which they are declared (and)  after the class definition. They are unknown to any code outside the method.
+
+-They cannot access the local variables of the method, unless they are final.
+
+-Local classes defined in static method of an enclosing class can access only static members of the enclosing class.
+--------------------------------------------------------------------------------
+class Outer{
+	void method(){
+		class Inner{
+			int a=10;
+		}
+		//this.new Inner();  //error
+		//new Outer.Inner();  //error
+		new Inner();
+	}
+}
+
+class Test{
+	public static void main(String... args){
+		new Outer().method();
+	}
+}
+
+-Local classes cannot be instantiated with this reference.
+--------------------------------------------------------------------------------
+class Demo{
+	int a=10;
+	void demoMethod(){
+		System.out.println(this);
+		System.out.println(a);
+	}
+}
+
+class Outer{
+	int outerA=100;
+	Demo outerMethod(){
+		class Inner extends Demo{
+			int b=20;
+			void demoMethod(){
+				super.demoMethod();
+				System.out.println(Outer.this);
+				System.out.println(outerA);
+				System.out.println(a);
+				System.out.println(b);
+			}
+		}
+		return new Inner();
+	}
+}
+
+class Test{
+	public static void main(String... args){
+		new Outer().outerMethod().demoMethod();
+	}
+}
+output:
+Outer$1Inner@9304b1
+10
+Outer@190d11
+100
+10
+20
+--------------------------------------------------------------------------------
+class Animal{
+     void eat(){syso("Animal Eating");}
+     void makeNoise(){syso("Animal Making Noise");}
+}
+.
+.
+.
+Animal animalObj=new Animal(){
+     void eat(){syso("Polymorphic Animal Eating")}
+};
+
+Animal reference, animalObj is used to refer to an object 'which extends' Animal and optionally overrides some of the methods of the class Animal.
+--------------------------------------------------------------------------------
+class SuperClass{
+	int a;
+	SuperClass(int a){
+		this.a=a;
+	}
+	void method(){
+		System.out.println("a : "+a);
+	}
+}
+
+class Main{
+
+	public static void main(String[] args){
+		new SuperClass(){}.method();//error
+		SuperClass superClass= new SuperClass(20){
+			int b;
+			{b=12;}
+			void method(){
+				super.method();
+				System.out.println("b : "+b);
+			}
+		};
+		superClass.method();
+	}
+}
+
+When constructor(default or non-default) of super class is used for anonymous type object creation, then it is as if
+-first, the super class object is created as per the constructor used.
+-then, members are added to the object as per the anonymous class code.
+--------------------------------------------------------------------------------
+class SuperClass{}
+class Animal{}
+
+class Main{
+	void method(){
+		int a=10;
+		Animal animal=new Animal();
+		final int a1=20;
+		final Animal animal1=new Animal();
+		SuperClass superClass=new SuperClass(){
+			static int b=52;//error
+			void method(){
+				System.out.println(a);//error
+				System.out.println(animal);//error
+				System.out.println(a1);
+				System.out.println(animal1);
+			}
+		};
+	}
+}
+--------------------------------------------------------------------------------
+class Outer{
+	static int a=10;
+	int b=20;
+	static void method(){
+		new Object(){
+			void method(){
+				System.out.println(a);
+				//System.out.println(b); //error
+			}
+		}.method();
+	}
+	public static void main(String... args){
+		method();
+	}
+}
+--------------------------------------------------------------------------------
+class Demo{}
+
+class Test{
+	public static void main(String... args){
+		final int a=10;
+		new Demo(){
+			int a=20;
+			void method(){
+				System.out.println(a);
+			}
+		}.method();
+	}
+}
+output:
+20
+--------------------------------------------------------------------------------
+class Main {
+	class Inner {
+		int a = 10;
+
+		void method() {
+			Inner inner= new Inner();
+			Inner inner2=Main.this.new Inner();
+			Inner inner3=new Main.Inner(); // not an error
+			// Main.this.new Main.Inner(); //error
+		}
+	}
+
+	void method() {
+		Inner inner=new Inner();
+		Inner inner2=new Main.Inner(); // not an error
+		Inner inner3=this.new Inner();
+		// this.new Main.Inner(); //error
+		Inner inner4=Main.this.new Inner();
+		// Main.this.new Main.Inner();//error
+	}
+
+	static void staticMethod() {
+		Inner inner=new Main().new Inner();
+		// new Main().new Main.Inner();//error
+		// new Main.Inner();//error
+	}
+}
+
+class Tester {
+	void method() {
+		Main.Inner inner=new Main().new Inner();
+		// new Main().new Main.Inner(); //error
+		// new Main.Inner();  //error
+	}
+}
+
+Objects of class Inner can be instantiated within Inner class as new Inner() / Outer.this.new Inner()
+
+Objects of class Inner can be instantiated outside Inner class only as an invocation on Outer class object.
+In a method associated with object of the class Outer : this.new Inner() / new Inner()
+Outside class Outer or in static methods of class Outer as : new Outer().new Inner();
+--------------------------------------------------------------------------------
+package pkg2;
+
+import pkg2.Outer.Inner;	//***
+
+class Outer {
+	class Inner {
+		int a = 20;
+	}
+}
+
+class Test {
+	public static void main(String... args) {
+		Inner inner = new Outer().new Inner();  //qualifying with Outer is not necessary
+		System.out.println(inner.a);
+	}
+}
+
+Type of object of class Inner is Outer.Inner. 
+Member class can be imported and thus can be used without qualifying.
+However within class Outer, Outer.Inner objects can be referenced with reference variable of type Inner without import.
+--------------------------------------------------------------------------------
+
+class Outer {
+	private int a = 10;
+
+	class Inner extends Outer {
+		void innerMethod() {
+			System.out.println(a);
+			// System.out.println(this.a); //error
+			// System.out.println(new Inner().a);//error
+			System.out.println(((Outer) this).a);
+			Outer outer = this;
+			System.out.println(outer.a);
+		}
+	}
+
+	void method() {
+		// System.out.println(new Inner().a);//error
+		// System.out.println(new Outer(){}.a);//error
+		System.out.println(((Outer) new Inner()).a);
+		System.out.println(((Outer) new Outer() {}).a);
+		Outer outer = this.new Inner();
+		System.out.println(outer.a);
+	}
+}
+*****************
+class OuterClass {
+	class SuperClass {
+		private int a = 10;
+		private void method(){System.out.println("private method in super class");}
+	}
+	class SubClass extends SuperClass {}
+	void method() {
+		System.out.println(((SuperClass)new SubClass()).a);
+		//System.out.println(new SubClass().a);
+		((SuperClass)new SubClass()).method();
+		//new SubClass().method();
+		//new SuperClass(){}.method();//error
+		((SuperClass)new SuperClass(){}).method();
+	}
+}
+
+
+-Inner class objects can inherit private members of objects of the outer class or private members of objects of classes which are in the same scope as the inner class. Such inherited private members can be accessed only with the reference of the class which declares those private members.
+--------------------------------------------------------------------------------
+class Outer{
+	class Inner{
+	}
+}
+class ExtendedOuter extends Outer{   
+	class ExtendedInner extends Inner{  //qualifying as Outer.Inner not necessary
+
+	}
+}
+***************************
+class Outer{
+	class Inner1 {
+		Inner1() {
+			System.out.println("constructor of class Inner1 called");
+		}
+	}
+
+	class Inner {
+		Inner() {
+			System.out.println("constructor of class Inner called");
+		}
+	}
+	class ExtendedInner extends Inner{
+		public ExtendedInner() {
+			super();
+		}
+	}
+	class ExtendedInner1 extends Inner{
+		public ExtendedInner1() {
+			Outer.this.super();
+		}
+	}
+}
+
+class ExtendedInner extends Outer.Inner {
+	public ExtendedInner() {
+		// int a=10;
+		//Outer.this.super();  //error
+		new Outer().super(); //calls Inner()
+	}
+	
+	public ExtendedInner(int a){
+		new Outer().super();
+		System.out.println("overloaded constructor called");
+	}
+	public ExtendedInner(Outer outer){
+		outer.super();
+	}
+}
+
+class Main {
+	public static void main(String[] args) {
+		new ExtendedInner();
+		System.out.println("--------");
+		new ExtendedInner(2);
+		System.out.println("--------");
+		new ExtendedInner(new Outer());
+	}
+}
+
+output:
+constructor of class Inner called
+--------
+constructor of class Inner called
+overloaded constructor called
+--------
+constructor of class Inner called
+
+
+-A inner class can extend any accessible class including outer class.
+-An outer class can never extend an enclosing type.
+-A static nested class can be extended by code, outside the enclosing class, like any other class.
+-When a non-static inner class is extended by any class not inheriting the outer class,
+the extending class 'must write' a constructor which calls it's super class constructor through an instance of the outer class of the super class.
+(  super() is just like new SuperClass()  )
+the default contructor provided by the extended inner class will have 'super()' which will fail since super() in this case can be called only as an invocation on an outer class object.
+--------------------------------------------------------------------------------
+package pkg1;
+
+public class Outer {
+	public class Inner {
+		protected int a = 20;
+	}
+}
+
+class ExtendedOuter extends Outer {
+	void method() {
+		System.out.println(new Inner().a);
+	}
+}
+
+class ExtendedInner extends Outer.Inner {
+	ExtendedInner() {
+		new Outer().super();
+	}
+	
+	void method(){
+		System.out.println(a);
+	}
+}
+
+
+
+package pkg2;
+
+import pkg1.Outer;
+
+class ExtendedOuter extends Outer {
+	void method() {
+		// System.out.println(new Inner().a); //error. only sub classes of
+		// 'Inner' has access to protected member of Inner
+	}
+}
+
+class ExtendedInner extends Outer.Inner {
+	ExtendedInner() {
+		new Outer().super();
+	}
+
+	void method() {
+		System.out.println(a);
+		// System.out.println(new Outer().new Inner().a); //error
+	}
+}
+
+class ExtendedOuter2 extends Outer {
+	class ExtendedInner2 extends Outer.Inner {
+		void method() {
+			System.out.println(a);
+		}
+	}
+
+	void method() {
+		// System.out.println(new ExtendedInner2().a); //error. only sub classes
+		// of 'Inner' has access to protected member of Inner (not even the
+		// outerclass of the inheriting class)
+	}
+}
+inherited protected members of an inner class are private to the extended inner class and cannot be accessed even in the outer class of the extended inner class
+--------------------------------------------------------------------------------

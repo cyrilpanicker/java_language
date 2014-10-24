@@ -1,0 +1,38 @@
+A varargs type is actually an array with dynamic size. 
+It can be used only as a method parameter.
+There can only be one varargs parameter and it should be the last parameter.
+
+it can be assigned an array object or can be assigned any number of objects directly.
+--------------------------------------------------------------------------------
+
+class Test{
+	//static void method1(int... a, int i){}
+
+	//static void method2(int... a, float... b){}
+
+	static void method3(int i, int... a){
+		System.out.print("value of non-varargs parameter : "+i+"\nvarargs array elements : ");
+		for(int j : a)System.out.print(j+" ");
+		System.out.println("\n");
+	}
+	public static void main(String... args){
+		//method3();
+		method3(2);
+		method3(1,2);
+		method3(1,new int[]{2,3,6,9});
+		method3(1,2,3,6,9);
+	}
+}
+
+output:
+value of non-varargs parameter : 2
+varargs array elements :
+
+value of non-varargs parameter : 1
+varargs array elements : 2
+
+value of non-varargs parameter : 1
+varargs array elements : 2 3 6 9
+
+value of non-varargs parameter : 1
+varargs array elements : 2 3 6 9

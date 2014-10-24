@@ -1,0 +1,163 @@
+Flow control
+
+enum Color{
+	RED, GREEN, BLUE
+}
+
+class Test{
+	public static void main(String... args){
+
+		Color color = Color.RED;
+		switch(color){
+		case RED:
+		//case Color.GREEN:  //error
+		}
+
+
+		long long1=2;
+		switch(long1){  //error
+		case 2:
+		}
+
+		switch('a'){
+		case 97:
+		case 'a':  //error; duplicates not allowed
+		}
+
+		switch('a'){
+		case 97:
+		case 'a'+1:  //no error
+		}
+
+		byte g = 2;
+		switch (g) {
+		case 23:
+		//case 128:  //error
+
+		}
+
+		final int a=127;
+		final int b=128;
+		byte c=20;
+		switch(c){
+		case a:
+		//case b: //error
+		}
+
+	}
+}
+
+enums can be used in switch-case. case constants 'should not' be qualified with the enum type name.
+
+-apart from enum, only variables and values that can be automatically promoted (in other words, implicitly cast) to an int are acceptable for switch expressions and case constants.char, byte, short, int are acceptable apart from enum variables or enum values.
+-also case constants need to assisgnment compatible as per type of the switch expression
+
+-------------------------------------------------------------------------------
+class Test {
+	
+	static final int initializedStaticMember=10;
+	static final int staticMember;
+	static{staticMember=100;}
+	
+	final int initializedInstanceMember=20;
+	final int instanceMember;
+	{instanceMember=200;}
+	
+	void method(){
+		
+		final int a=15;
+		int b=25;
+		
+		switch(10){
+		
+		case initializedStaticMember:
+		case initializedInstanceMember:
+		//case staticMember:  //error
+		//case instanceMember:  //error
+			
+		case a+1:
+		//case b:  //error
+		}
+		
+	}
+}
+only compile time constant expressions ie. final variables 'initalized' with literal values can be used as case constants.
+------------------------------------------------------------------------------------------------------------------------
+class Test {
+	public static void main(String... args) {
+		
+		int[] a = new int[] { 1, 5, 8, 9 };
+		
+		for (int b : a)System.out.print(b+" ");
+		System.out.println();
+		
+		for(int b:a){
+			b=2;
+			System.out.print(b+" ");
+		}
+		System.out.println();
+		
+		for(int b:a)System.out.print(b+" ");
+	}
+}
+
+output:
+1 5 8 9 
+2 2 2 2 
+1 5 8 9 
+
+the block variable declared for enhanced for loop can be assigned values, but these assignments do not change the actual elements of the collection.
+-----------------------------------------------------------------------------------------------------------------------------
+class Test{
+	public static void main(String... args){
+		//label1: int a=1; //error
+		label2:{int a=1;}
+		label3:for(int i=1;i<=10;i++){
+			label4:i++;
+			label5:if(i==2)break;
+		}
+	}
+}
+***********
+class Test {
+	public static void main(String... args) {
+		//ice: { //enclosing labels cannot have the same names
+			int a = 10;
+
+			ice: break ice; // labeled block with single statement
+
+			ice: a++; // labeled block with single statement (this block is
+						// independent of the previous block)
+
+			// break ice; //error; not enclosed by a block labeled with 'ice'
+
+			egg: ice: {
+				a++;
+				try {
+					break ice;
+				} catch (Exception e) {
+					break egg;
+				}
+			}
+		//}
+	}
+}
+*****************
+class Test {
+	public static void main(String... args) {
+		ice: {
+			egg: while (true) {
+				//continue ice; //'ice' is not a label for a looping construct
+				continue egg;
+			}
+		}
+
+	}
+}
+
+Labels can be used with a looping statements (for, while, do), if constructs (if statement), expression, assignment, return, try, throws, and with a block. Labels cannot be used for declarations statements.
+Since labels are referred from the block labeled by the label, disjoint blocks can have the same label name.
+
+unlabeled break, unlabeled continue and labeled contine can be used only within loops.
+labeled break can be used anywhere within a labeled block
+-----------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,504 @@
+-InputStreamA
+	-FileInputStream
+	-ObjectInputStream
+
+-OutputStreamA
+	-FileOutputStream
+	-ObjectOutputStream
+	-PrintStream
+
+-ReaderA
+	-BufferedReader
+	-InputStreamReader
+		-FileReader
+
+-WriterA
+	-BufferedWriter
+	-PrintWriter
+	-OutputStreamWriter
+		-FileWriter
+----------------------------------------------------------------------------------------------
+class java.lang.System{
+
+	public static final InputStream in=<console>;
+	public static final PrintStream out=<console>;
+	public static final PrintStream err=<console>;
+
+	public static Console console()
+}
+----------------------------------------------------------------------------------------------
+public class File{
+
+	public File(String pathname)
+	public File(String parent, String child)
+	public File(File parent, String child)
+
+	public boolean exists()
+	public boolean isDirectory()
+	public boolean isFile()
+
+	public boolean createNewFile() throws IOException
+	public boolean mkdir()
+	public boolean delete()
+
+	public boolean renameTo(File dest)
+
+	public String[] list()
+}
+
+*********************************
+
+import java.io.*;
+class Test{
+	public static void main(String... args) throws IOException{
+		
+		System.out.println(new File("folder1\\text1.txt").createNewFile());			
+		//run time exception if folder1 doesn't exist as a folder
+
+		System.out.println(new File("folder1\\text1.txt").createNewFile()); // false
+
+		System.out.println(new File("folder2/subFolder1","text1.txt").createNewFile());			
+		//run time exception if folder2 or subFolder1 doesn't exist as a folder
+
+		System.out.println(new File(new File("folder3/subFolder1"),"subFolder2/text1.txt").createNewFile());			
+		//run time exception if folder3, subFolder1 or subFolder2 doesn't exist as a folder
+
+		System.out.println(new File("folder4/subFolder1/subFolder2").mkdir());				
+		//folder not created if folder4 or subFolder1 doesn't exist; no exceptions
+
+		System.out.println(new File("folder4/subFolder1/subFolder2").mkdir());  //false
+
+		System.out.println(new File(new File("folder5/subFolder1"),"subFolder2/subFolder3").mkdir());			
+		//folder not created if folder5, subFolder1 or subFolder2 doesn't exist; no exceptions
+
+		System.out.println(new File("folder1/text1.txt").mkdir()); //false
+
+		System.out.println(new File("folder1/text.txt/subFolder").mkdir());  //false
+
+		System.out.println(new File("folder1\\text1.txt").delete());  //true
+		System.out.println(new File("folder1\\text2.txt").delete());  //false
+		System.out.println(new File("folder1").delete());	//true
+		System.out.println(new File("folder4").delete()); //false
+	}
+}
+-createNewFile() / mkdir(): creates a new path named by this abstract pathname if and only if a file with this name does not yet exist.
+it doesn't create the whole directory structure. the whole path to the file should pre-exist.
+Returns true if the named file does not exist and was successfully created; false if the named file already exists.
+
+-delete(): If this pathname denotes a directory, then the directory must be empty in order to be deleted. returns true if and only if the file or directory is successfully deleted; false otherwise 
+
+-isDirectory() and isFile(): returns true if the path exists and is a file or directory; false otherwise
+
+***********************************
+import java.io.*;
+class Test{
+	public static void main(String... args) throws IOException{
+
+		new File("folder1").mkdir();
+		new File("folder1/text1.txt").createNewFile();
+
+		System.out.println("Contents of folder1 :");
+		String[] folder1Files=new File("folder1").list();
+		for(String fileName:folder1Files)System.out.println(fileName);
+
+
+		new File("folder2").mkdir();
+		FileWriter writer=new FileWriter(new File("folder2/text.txt"));
+		writer.write("This text was written in folder2/text.txt");
+		writer.close();
+		new File("folder2/subFolder1").mkdir();
+
+		System.out.println("\nContents of folder2 :");
+		String[] folder2Files=new File("folder2").list();
+		for(String fileName:folder2Files)System.out.println(fileName);
+		
+		new File("folder2/text.txt").renameTo(new File("folder1/renamedText.txt"));
+		new File("folder2/subFolder1").renameTo(new File("folder1/renamedSubFolder1"));
+
+		
+		System.out.println("\nContents of folder1 after moving:");
+		String[] folder1FilesAfterRenaming=new File("folder1").list();
+		for(String fileName:folder1FilesAfterRenaming)System.out.println(fileName);
+
+		System.out.println("\nContents of folder2 after moving:");
+		String[] folder2FilesAfterRenaming=new File("folder2").list();
+		for(String fileName:folder2FilesAfterRenaming)System.out.println(fileName);
+	}
+}
+
+output:
+Contents of folder1 :
+text1.txt
+
+Contents of folder2 :
+subFolder1
+text.txt
+
+Contents of folder1 after moving:
+renamedSubFolder1
+renamedText.txt
+text1.txt
+
+Contents of folder2 after moving:
+<no output>
+*********************************
+for path strings, '/'(unix style) or '\'(windows style) can be used.
+if '\' is used, it has to be escaped as '\\' else it is considered as beginning of an escape character.
+-------------------------------------------------------------------------------------------------------
+public abstract class Writer{
+	
+	public void write(int c) throws IOException
+	public void write(char[] cbuf) throws IOException
+	public void write(char[] cbuf, int off, int len) throws IOException
+	public void write(String str) throws IOException
+	public void write(String str, int off, int len) throws IOException
+
+	public void flush() throws IOException
+	
+	public void close() throws IOException
+}
+-----------------------------------------------------------------------------------------------------
+public class OutputStreamWriter extends Writer{
+	
+	public OutputStreamWriter(OutputStream out)	
+
+}
+-----------------------------------------------------------------------------------------------------
+public class FileWriter extends OutputStreamWriter{
+
+	public FileWriter(File file) throws IOException
+	public FileWriter(String fileName) throws IOException
+}
+
+*************************
+import java.io.*;
+class Test{
+	public static void main(String... args) throws Exception{
+
+		FileWriter writer1=new FileWriter(new File("folder1/Text1.txt")); // run time exception if folder1 doesn't exist as a folder
+		writer1.write("Text\nText\nopen in wordpad");
+		writer1.close();
+
+		FileWriter writer2=new FileWriter("folder2/Text1.txt"); // run time exception if folder2 doesn't exist as a folder
+		writer2.write("Text\nText\nopen in wordpad");
+		writer2.close();
+
+		FileWriter writer3=new FileWriter("folder1"); //run time exception
+	}
+}
+
+FileWriter(File) or FileWriter(String) doesn't create the whole directory structure. the whole path to the file should pre-exist. however the file could be absent.
+Throws IOException - if the file exists but is a directory rather than a regular file, does not exist but cannot be created, or cannot be opened for any other reason
+***************************
+import java.io.*;
+class Test{
+	public static void main(String... args) throws Exception{
+
+		new File("folder1").mkdir();
+		new File("folder1/Demo.txt").mkdir();
+		new File("folder1/Demo.txt").createNewFile(); // returns false, no exception
+		
+		FileWriter writer1=new FileWriter("folder1/Demo.txt"); //exception
+		writer1.write("howdy");
+		writer1.close();	
+	}
+}
+--------------------------------------------------------------------------------------
+public class BufferedWriter extends Writer{
+	
+	public BufferedWriter(Writer out)
+
+	public void newLine() throws IOException
+}
+--------------------------------------------------------------------------------------
+public class PrintWriter extends Writer{
+
+	public PrintWriter(File file) throws FileNotFoundException
+	public PrintWriter(String fileName) throws FileNotFoundException
+	public PrintWriter(OutputStream out)
+	public PrintWriter(Writer out)
+
+	public void println()	
+	public void print(<any primitive or object>)
+	public void println(<any primitive or object>)	
+
+	public PrintWriter printf(String format, Object... args)
+	public PrintWriter printf(Locale l, String format, Object... args)
+
+	public PrintWriter format(String format, Object... args)
+	public PrintWriter format(Locale l, String format, Object... args)
+}
+------------------------------------------------------------------------------------------
+public abstract class Reader{
+
+	public int read() throws IOException
+	public int read(char[] cbuf) throws IOException
+	public int read(char[] cbuf, int off, int len) throws IOException
+
+	public long skip(long n) throws IOException
+
+	public void close() throws IOException
+}
+--------------------------------------------------------------------------------------------
+public class InputStreamReader extends Reader{
+
+	public InputStreamReader(InputStream in)
+
+}
+----------------------------------------------------------------------------------------------
+public class FileReader extends InputStreamReader{
+
+	public FileReader(File file) throws FileNotFoundException
+	public FileReader(String fileName) throws FileNotFoundException
+	
+}
+--------------------------------------------------------------------------------
+
+class BufferedReader extends Reader{
+
+	public BufferedReader(Reader in)
+
+	public String readLine() throws IOException
+}
+------------------------------------------------------------------------------------------------
+
+class java.io.Console{
+
+	public PrintWriter writer()
+	public Reader reader()
+
+	public Console format(String fmt, Object... args)
+	public Console printf(String format, Object... args)
+
+	public String readLine()
+	public String readLine(String fmt, Object... args)
+
+	public char[] readPassword()
+	public char[] readPassword(String fmt, Object... args)
+
+	public void flush()
+}
+------------------------------------------------------------------------------------------------
+public abstract class OutputStream{
+	
+	public abstract void write(int b) throws IOException
+	public void write(byte[] b) throws IOException
+	public void write(byte[] b, int off, int len) throws IOException
+
+	public void flush() throws IOException
+
+	public void close() throws IOException
+}
+------------------------------------------------------------------------------------------------
+public class FileOutputStream extends OutputStream{
+
+	public FileOutputStream(String name) throws FileNotFoundException
+	public FileOutputStream(File file) throws FileNotFoundException
+}
+-----------------------------------------------------------------------------------------------
+public class ObjectOutputStream extends OutputStream{
+
+	public ObjectOutputStream(OutputStream out) throws IOException
+
+	public final void writeObject(Object obj) throws IOException
+}
+-----------------------------------------------------------------------------------------------
+public abstract class InputStream{
+
+	public abstract int read() throws IOException;
+	public int read(byte[] b) throws IOException;
+	public int read(byte[] b, int off, int len) throws IOException;
+
+	public long skip(long n) throws IOException
+
+	public void close() throws IOException
+}
+
+----------------------------------------------------------------------------------------------
+public class FileInputStream extends InputStream{
+
+	public FileInputStream(String name) throws FileNotFoundException
+	public FileInputStream(File file) throws FileNotFoundException
+}
+
+------------------------------------------------------------------------------------------------
+
+public class ObjectInputStream extends InputStream{
+
+	public ObjectInputStream(InputStream in) throws IOException
+
+	public final Object readObject() throws IOException, ClassNotFoundException
+}
+-------------------------------------------------------------------------------------------------
+import java.io.*;
+
+class Collar{
+	int size;
+	Collar(int size){this.size=size;}
+	public String toString(){return "collar size : "+size;}
+}
+
+class Dog implements Serializable{
+
+	String name;
+	transient Collar collar;
+	Dog(String name, Collar collar){this.name=name; this.collar=collar;}
+	public String toString(){return name+", "+collar;}
+	
+	private void writeObject(ObjectOutputStream writer){
+
+		try{writer.defaultWriteObject();}
+		catch(IOException exception){exception.printStackTrace();}
+
+		try{writer.writeInt(collar.size);}
+		catch(IOException exception){exception.printStackTrace();}
+	}
+
+	private void readObject(ObjectInputStream reader){
+
+		try{reader.defaultReadObject();}
+		catch(IOException exception){exception.printStackTrace();}
+		catch(ClassNotFoundException exception){exception.printStackTrace();}
+
+		try{
+			int savedCollarSize=reader.readInt();
+			collar=new Collar(savedCollarSize);
+		}
+		catch(IOException exception){exception.printStackTrace();}
+	}
+}
+
+class Test{
+	public static void main(String... args){
+
+		Dog[] dogs=new Dog[]{new Dog("tommy",new Collar(12)),new Dog("jimmy",new Collar(26))};
+
+		
+		try{
+			ObjectOutputStream writer=new ObjectOutputStream(new FileOutputStream("SerializedDogs.txt"));
+			writer.writeObject(dogs[0]);
+			writer.writeObject(dogs[1]);
+		}
+		catch(IOException exception){exception.printStackTrace();}
+		
+
+
+		try{
+			ObjectInputStream reader=new ObjectInputStream(new FileInputStream("SerializedDogs.txt"));
+			dogs[0]=(Dog)reader.readObject();
+			dogs[1]=(Dog)reader.readObject();
+		}
+		catch(IOException exception){exception.printStackTrace();}
+		catch(ClassNotFoundException exception){exception.printStackTrace();}
+
+
+		System.out.println(dogs[0]);
+		System.out.println(dogs[1]);	
+	}
+}
+------------------------------------------------------------------------------------------------------------------------
+import java.io.*;
+
+class Animal{
+	String name="value initialized at declaration";
+	Animal(){this.name="value assigned by constructor";}
+	Animal(String name){this.name=name;}
+	public String toString(){return name;}
+}
+
+class Fish{
+	String name="value initialized at declaration";
+	Fish(){}
+	Fish(String name){this.name=name;}
+	public String toString(){return name;}	
+}
+
+class Test{
+	public static void main(String... args){
+		System.out.println(new Animal("cyril"));
+		System.out.println(new Animal());
+		System.out.println(new Fish("joe"));
+		System.out.println(new Fish());
+	}
+}
+output:
+cyril
+value assigned by constructor
+joe
+value initialized at declaration
+--------------------------------------------------------------------------------------------------------------------------
+import java.io.*;
+
+class Animal{
+	String name="value initialized at declaration";
+	//Animal(){this.name="value assigned by constructor";}
+	Animal(){}
+		//try both no-arg constructors and also without both no-args constructor
+	Animal(String name){this.name=name;}
+	public String toString(){return name;}
+}
+
+class Dog extends Animal implements Serializable{
+	int age;
+	Dog(String name, int age){super(name);this.age=age;}
+	public String toString(){return super.toString()+", aged "+age;}
+}
+
+class Test{
+	public static void main(String... args) throws Exception{
+
+		Dog dog=new Dog("cyril",25);
+
+		ObjectOutputStream writer=new ObjectOutputStream(new FileOutputStream("Serialized.txt"));
+		writer.writeObject(dog);
+
+		dog=null;
+
+		ObjectInputStream reader=new ObjectInputStream(new FileInputStream("Serialized.txt"));
+		dog=(Dog)reader.readObject();
+
+		System.out.println(dog);
+	}
+}
+
+output for Animal(){this.name="value assigned by constructor";}:
+value assigned by constructor, aged 25
+
+output for Animal(){} : 
+value initialized at declaration, aged 25
+
+*********************************************************
+During deserialization, the instance variables inherited from non-serializable super-classes are initialized using the default value provided at declaration and then the default no-arg constructors of the super-classes. If those super classes do not provide no-arg constructors or if the no-arg constructors are inaccessible to the sub-class, an exception will be thrown.
+----------------------------------------------------------------------------------------------------------------------------
+
+public final class java.util.Scanner{
+
+	public Scanner(InputStream source)
+	public Scanner(File source) throws FileNotFoundException
+	public Scanner(String source)
+
+	public boolean hasNext()
+	public String next()
+
+	public boolean hasNextLine()
+	public String nextLine()
+
+	public boolean hasNext<primitive>()
+	public <primitive> next<primitive>()
+
+	public void close()
+}
+*************************
+-public boolean hasNext() Returns true if this scanner has another token in its input. This method may block while waiting for input to scan. The scanner does not advance past any input.
+
+-public String next() Finds and returns the next complete token from this scanner. A complete token is preceded and followed by input that matches the delimiter pattern. This method may block while waiting for input to scan, even if a previous invocation of hasNext() returned true.
+
+-public boolean hasNextLine() Returns true if there is another line in the input of this scanner. This method may block while waiting for input. The scanner does not advance past any input.
+
+-public String nextLine() Advances this scanner past the current line and returns the input that was skipped. This method returns the rest of the current line, excluding any line separator at the end. The position is set to the beginning of the next line.
+
+-public boolean hasNext<primitive>() Returns true if the next token in this scanner's input can be interpreted as a <primitive> value using the next<primitive>() method. The scanner does not advance past any input.
+
+-public <primitive> next<primitive>() Scans the next token of the input as a <primitive>. Returns the <primitive> scanned from the input
+*******************************
+A Scanner breaks its input into tokens using a delimiter pattern, which by default matches whitespace. The resulting tokens may then be converted into values of different types using the various next methods.

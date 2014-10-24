@@ -1,0 +1,4 @@
+Return Values
+
+While returning values from a method, whether primitive or reference type, the returned value type can be anything that could be implicitly converted to the method's return type.
+Thus a Horse can be returned from a method with return type Animal. And a character can be returned from a method with return type int.

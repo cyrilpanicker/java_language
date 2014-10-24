@@ -1,0 +1,377 @@
+Driver types:
+
+-Type1 Driver - JDBC-ODBC bridge driver - not written in Java - converts JDBC method calls to ODBC function calls - platform dependent
+-Type2 Driver - Native-API driver - not written in Java - converts JDBC method calls into native calls of the database API - platform dependent
+-Type3 Driver - Network-Protocol driver - written in Java - middle tier converts JDBC calls directly or indirectly into the vendor-specific database protocol - same driver can be used for multiple databases - platform independent - best flexibility
+-Type4 Driver - Native-Protocol driver - written in Java - client tier converts JDBC calls directly or indirectly into the vendor-specific database protocol - separate vendor-specific drivers need to be used to connect to the database - platform independent - best performance
+------------------------------------------------------------------------
+package: java.sql
+------------------------------------------------------------------------
+load a jdbc driver : Class.forName("fullyQualifiedNameOfDriverClass");
+------------------------------------------------------------------------
+get a connection object : Connection connectionObj = DriverManager.getConnection("connectionURL","userId","password");
+Connection is an interface.
+public static Connection getConnection(String url, String user, String password) throws SQLException
+------------------------------------------------------------------------
+create statement object : Statement statementObj = connectionObj.createStatement();
+Statement is an interface with CallableStatement and PreparedStatement as subinterfaces. CallableStatement also extends PreparedStatement
+Statement createStatement() throws SQLException
+------------------------------------------------------------------------
+create prepared statement object : PreparedStatement preparedStatement = connectionObj.prepareStatement("sql statement with IN parameters");
+PreparedStatement prepareStatement(String sql) throws SQLException
+Eg.
+PreparedStatement pstmt = con.prepareStatement("UPDATE EMPLOYEES SET SALARY = ? WHERE ID = ?");
+pstmt.setBigDecimal(1, 153833.00)
+pstmt.setInt(2, 110592)
+--------------------------------------------------------------------------
+execute a 'select' query :
+
+for Statement object
+ResultSet result=statementObj.executeQuery("sql select statement");
+ResultSet executeQuery(String sql) throws SQLException
+
+for PreparedStatement object
+ResultSet result=preparedStatement.executeQuery();
+ResultSet executeQuery() throws SQLException
+
+never returns null
+-------------------------------------------------------------------------
+execute an 'update' statement :
+
+for Statement object
+int rowsAffected=statementObj.executeUpdate("dml or ddl statement or statements that return nothing");
+int executeUpdate(String sql) throws SQLException
+
+for PreparedStatement object
+int rowsAffected=preparedStatement.executeUpdate();
+int executeUpdate() throws SQLException
+
+returns row count for dml statements and 0 for ddl statements or statements that return nothing
+-------------------------------------------------------------------------
+using ResultSet:
+
+boolean next() throws SQLException
+
+Returns: true if the new current row is valid; false if there are no more rows
+A ResultSet object maintains a cursor pointing to its current row of data. Initially the cursor is positioned before the first row. The next method moves the cursor to the next row, and because it returns false when there are no more rows in the ResultSet object, it can be used in a while loop to iterate through the result set.
+
+type getType(String columnLabel) throws SQLException
+type getType(int columnIndex) throws SQLException
+
+static final int TYPE_FORWARD_ONLY : The constant indicating the type for a ResultSet object whose cursor may move only forward.
+
+static final int TYPE_SCROLL_INSENSITIVE : The constant indicating the type for a ResultSet object that is scrollable but generally not sensitive to changes to the data that underlies the ResultSet.
+
+static final int TYPE_SCROLL_SENSITIVE : The constant indicating the type for a ResultSet object that is scrollable and generally sensitive to changes to the data that underlies the ResultSet.
+
+static final int CONCUR_READ_ONLY : The constant indicating the concurrency mode for a ResultSet object that may NOT be updated.
+
+static final int CONCUR_UPDATABLE : The constant indicating the concurrency mode for a ResultSet object that may be updated.
+
+Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException
+
+PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException
+
+CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException
+
+boolean absolute(int row) throws SQLException :
+
+If the row number is positive, the cursor moves to the given row number with respect to the beginning of the result set. The first row is row 1, the second is row 2, and so on.
+
+If the given row number is negative, the cursor moves to an absolute row position with respect to the end of the result set. For example, calling the method absolute(-1) positions the cursor on the last row; calling the method absolute(-2) moves the cursor to the next-to-last row, and so on.
+
+Note: Calling absolute(1) is the same as calling first(). Calling absolute(-1) is the same as calling last().
+
+Returns:
+true if the cursor is moved to a position in this ResultSet object; false if the cursor is before the first row or after the last row
+
+boolean relative(int rows) throws SQLException :
+
+Parameters:
+rows - an int specifying the number of rows to move from the current row; a positive number moves the cursor forward; a negative number moves the cursor backward
+Returns:
+true if the cursor is on a row; false otherwise
+
+boolean previous() throws SQLException
+
+boolean first() throws SQLException
+
+boolean last() throws SQLException
+
+void beforeFirst() throws SQLException
+
+oid afterLast() throws SQLException
+-------------------------------------------------------------------------
+eg.1.
+
+
+import java.sql.Connection ;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import bean.Employee;
+
+public class StatementDemo {
+        public static void main(String args[]) {
+                Connection connection= null;
+                Employee empl= new Employee();
+                try{
+                        Class.forName("oracle.jdbc.driver.OracleDriver");
+
+                        connection = DriverManager.getConnection("jdbc:oracle:thin:@10.122.130.40:1521:Georli01","YourOracleid","YourOraclePassword");
+
+                        empl.setEmpid(1001);
+
+                        Statement statement = connection.createStatement();
+
+                        ResultSet resultSet = statement.executeQuery("select * from EmployeeDemo where empid="+empl.getEmpid());
+
+                        while(resultSet.next()){
+                                empl.setName(resultSet.getString("NAME"));
+                                empl.setSalary(resultSet.getDouble(3));
+                        }
+
+                        resultSet.close();
+                }
+
+                catch(Exception exception) {
+                        System.out.println(exception);
+                }
+
+                finally{
+                        if(connection!=null){
+try{
+connection.close();
+}
+                                catch(Exception e){
+                                                System.out.println(e);
+}
+}
+}
+        }
+}
+
+---------------------------------------------------------------------------
+eg.2.
+
+
+import java.sql.Connection ;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.PreparedStatement;
+import bean.Employee;
+
+public class PreparedStatementDemo {
+        public static void main(String args[]) {
+                Connection connection= null;
+                Employee empl= new Employee();
+                try{
+                        Class.forName("oracle.jdbc.driver.OracleDriver");
+                        connection = DriverManager.getConnection("jdbc:oracle:thin:@10.122.130.42:1521:Georli02","nevil","infy");
+
+                        PreparedStatement preparedStatement = connection.prepareStatement("select * from EmployeeDemo where empid=?");
+                        preparedStatement.setInt(1,1001);
+                        ResultSet resultSet = preparedStatement.executeQuery();
+                        while(resultSet.next()){
+                                empl.setName(resultSet.getString("name"));
+                                empl.setSalary(resultSet.getDouble("salary"));
+                 }
+                        resultSet.close();
+
+                        preparedStatement.setInt(1,1002);
+                        resultSet = preparedStatement.executeQuery();
+                        while(resultSet.next()){
+empl.setName(resultSet.getString("name"));
+                                empl.setSalary(resultSet.getDouble("salary"));
+}
+                        resultSet.close();
+
+                        preparedStatement=connection.prepareStatement("Update EmployeeDemo set salary=? where empid=?");
+                        preparedStatement.setDouble(1, 15000);
+                        preparedStatement.setInt(2, 1002);
+                        int affectedRows=preparedStatement.executeUpdate();
+                        System.out.println("No of rows updated is "+affectedRows);
+                }
+
+                catch(Exception exception) {
+                        System.out.println(exception);
+                }
+
+                finally{
+if(connection!=null){
+try{
+connection.close();
+}
+                                catch(Exception e){
+System.out.println(e);
+}
+}
+}
+        }
+}
+--------------------------------------------------------------------------
+Using callable statement objects:
+Eg.
+
+package db;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.CallableStatement;
+import java.sql.Types;
+
+public class CallableStatementDemo {
+        public static void main(String[] args) {
+                Connection  con=null;
+                try{
+                        Class.forName("oracle.jdbc.driver.OracleDriver").newInstance();
+                        con=DriverManager.getConnection("jdbc:oracle:thin:@10.122.130.40:1521:Georli01","yourid", "yourpassword");
+
+                        CallableStatement cstmtForProc=con.prepareCall("{call sp_Futureage(?,?)}");
+                        cstmtForProc.setInt(1,24);
+                        cstmtForProc.registerOutParameter(2,Types.INTEGER);
+
+                        cstmtForProc.execute();
+
+                        int futureAge=Integer.parseInt(cstmtForProc.getString(2));
+
+                        System.out.println("Future age from procedure is "+futureAge);
+
+                        CallableStatement cstmtForFunc = con.prepareCall("{? = call fn_Futureage(?)}");
+                        cstmtForFunc.registerOutParameter(1,Types.INTEGER);
+                        cstmtForFunc.setInt(2,25);
+
+                        cstmtForFunc.execute();
+
+                        System.out.println("the future age from function is "+cstmtForFunc.getInt(1));
+                }
+                catch(Exception e)
+                {
+                        System.out.println(e);
+                }
+                finally
+                {
+                        if(con!=null)
+                        {
+                                try
+                                {
+                                        con.close();
+                                }
+                                catch(Exception e)
+                                {
+                                        System.out.println(e);
+                                }
+                        }
+                }
+        }
+}
+--------------------------------------------------------------------------
+using ResultSetMetaData:
+
+used to get information about the types and properties of the columns in a ResultSet object.
+
+ResultSet rs = stmt.executeQuery("SELECT a, b, c FROM TABLE2");
+ResultSetMetaData rsmd = rs.getMetaData();
+int numberOfColumns = rsmd.getColumnCount();
+boolean b = rsmd.isSearchable(1);
+eg.
+
+import java.sql.ResultSetMetaData;
+import java.sql.Connection ;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class ResulsetMetaDataDemo {
+        public static void main(String args[]) {
+                Connection connection= null;
+                try{
+                        Class.forName("oracle.jdbc.driver.OracleDriver");
+                        connection = DriverManager.getConnection("jdbc:oracle:thin:@10.122.130.40:1521:Georli01","yourOracleid", "yourOraclePassword");
+
+                        Statement statement = connection.createStatement();
+
+                        ResultSet resultSet = statement.executeQuery("SELECT name,age FROM demo");
+
+                        ResultSetMetaData rsmd = resultSet.getMetaData();
+
+                        int column = rsmd.getColumnCount();
+
+                        System.out.println("Column count : " + column);
+
+                        for(int i=1;i<=column;i++)
+                          System.out.print(rsmd.getColumnName(i)+"   ");
+
+                        while (resultSet.next()) {
+                            System.out.println("");
+                            System.out.print(resultSet.getString("name")+ "    ");
+                            System.out.print(resultSet.getInt("age"));
+                            System.out.println("");
+                            System.out.print("");
+                        }
+                        resultSet.close();
+                }
+
+                catch(Exception exception) {
+                        System.out.println(exception);
+                }
+                finally{
+if(connection!=null){
+try{
+connection.close();
+}
+catch(Exception e){
+System.out.println(e);
+}
+}
+}
+        }
+}
+-----------------------------------------------------------------------
+Using transactions:
+
+void setAutoCommit(boolean autoCommit) throws SQLException
+
+by turning off autocommit for a connection, its SQL statements are grouped into transactions that are terminated by a call to either the method commit or the method rollback.
+
+By default, new connections are in auto-commit mode. The commit occurs when the statement completes. The time when the statement completes depends on the type of SQL Statement:
+-For DML statements, such as Insert, Update or Delete, and DDL statements, the statement is complete as soon as it has finished executing.
+-For Select statements, the statement is complete when the associated result set is closed.
+-For CallableStatement objects or for statements that return multiple results, the statement is complete when all of the associated result sets have been closed, and all update counts and output parameters have been retrieved.
+
+
+void commit() throws SQLException
+Makes all changes made since the previous commit/rollback permanent and releases any database locks currently held by this Connection object. This method should be used only when auto-commit mode has been disabled.
+
+void rollback() throws SQLException
+Undoes all changes made in the current transaction and releases any database locks currently held by this Connection object. This method should be used only when auto-commit mode has been disabled.
+
+
+Connection.setAutoCommit(false);
+try{
+        //statements
+        connection.commit();
+}
+catch(Exception exception){
+        connection.rollback();
+}
+
+static final int TRANSACTION_NONE : A constant indicating that transactions are not supported.
+
+static final int TRANSACTION_READ_UNCOMMITTED : A constant indicating that dirty reads, non-repeatable reads and phantom reads can occur. This level allows a row changed by one transaction to be read by another transaction before any changes in that row have been committed (a "dirty read"). If any of the changes are rolled back, the second transaction will have retrieved an invalid row.
+
+static final int TRANSACTION_READ_COMMITTED : A constant indicating that dirty reads are prevented; non-repeatable reads and phantom reads can occur. This level only prohibits a transaction from reading a row with uncommitted changes in it.
+
+static final int TRANSACTION_REPEATABLE_READ : A constant indicating that dirty reads and non-repeatable reads are prevented; phantom reads can occur. This level prohibits a transaction from reading a row with uncommitted changes in it, and it also prohibits the situation where one transaction reads a row, a second transaction alters the row, and the first transaction rereads the row, getting different values the second time (a "non-repeatable read").
+
+static final int TRANSACTION_SERIALIZABLE : A constant indicating that dirty reads, non-repeatable reads and phantom reads are prevented. This level includes the prohibitions in TRANSACTION_REPEATABLE_READ and further prohibits the situation where one transaction reads all rows that satisfy a WHERE condition, a second transaction inserts a row that satisfies that WHERE condition, and the first transaction rereads for the same condition, retrieving the additional "phantom" row in the second read.
+
+int getTransactionIsolation() throws SQLException
+
+void setTransactionIsolation(int level) throws SQLException :
+Note: If this method is called during a transaction, the result is implementation-defined.
+
+Savepoint setSavepoint() throws SQLException
+Savepoint setSavepoint(String name) throws SQLException
+void rollback(Savepoint savepoint) throws SQLException
+void releaseSavepoint(Savepoint savepoint) throws SQLException : Removes the specified Savepoint and subsequent Savepoint objects from the current transaction. Any reference to the savepoint after it have been removed will cause an SQLException to be thrown.

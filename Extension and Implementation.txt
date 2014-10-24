@@ -1,0 +1,69 @@
+Extension and Implementation
+
+
+interface InterfaceDemo {
+	int a = 10;
+	void interfaceMethod();
+}
+
+class ClassDemo {
+	int b = 20;
+
+	void classMethod() {
+		System.out.println("method in ClassDemo");
+	}
+}
+
+class Extender extends ClassDemo {
+	int b = 200;
+
+	void method() {
+		System.out.println(b);
+		System.out.println(this.b);
+		System.out.println(Extender.this.b);
+		System.out.println(super.b);
+		// System.out.println(ClassDemo.this.b); //error
+	}
+}
+
+class Implementor implements InterfaceDemo {
+	
+	int a=100;
+	
+	// void interfaceMethod(){} //error
+	public void interfaceMethod() {
+	}
+
+	void method() {
+		System.out.println(a);
+		System.out.println(this.a);
+		System.out.println(Implementor.this.a);
+		// System.out.println(super.a); //error
+		// System.out.println(InterfaceDemo.this.a); //error
+		System.out.println(InterfaceDemo.a);
+	}
+}
+
+class ExtenderImplementor extends Implementor implements InterfaceDemo{
+	void method() {
+		//System.out.println(a); //error ambiguous
+		//System.out.println(this.a);  //error ambiguous
+		//System.out.println(Implementor.this.a); //error
+		// System.out.println(super.a); //error
+		// System.out.println(InterfaceDemo.this.a); //error
+		System.out.println(InterfaceDemo.a);
+	}
+}
+
+class Test {
+
+	public static void main(String[] args) {
+		new Extender().method();
+		new Implementor().method();
+	}
+}
+
+
+
+Interface members cannot be accessed in sub classes with super.
+super and this can be used only in instance methods.

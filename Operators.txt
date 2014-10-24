@@ -1,0 +1,246 @@
+Precedence
+
+-unary
+	-postfix (a++ a--)
+	-prefix (++a --a +a -a !a)
+
+-binary
+	-arithmetic
+		-multiplicative (* / %)
+		-additive (+ -)
+
+
+	-relational (< > <= >= instanceof)
+
+	-equality (== !=)
+
+	-logical
+		-non-shortcircuit
+			-AND (&)
+			-exclusive OR (^)
+			-OR (|)
+		-shortcircuit
+			-shortcircuit AND (&&)
+			-shortcircuit OR (||)
+
+	-ternary (? :)
+	-assignment (= += -= *= /=)
+
+--------------------------------------------------------------------------------
+interface Car{}
+class Zen implements Car{}
+
+class Animal{}
+class Dog extends Animal{}
+class Horse extends Animal{}
+
+
+class Test{
+	public static void main(String... args){
+
+		Animal animal =new Animal();
+		Dog dog=new Dog();
+		Horse horse=new Horse();
+		Animal dogAsAnimal=new Dog();
+		Animal horseAsAnimal=new Horse();
+		Zen zen =new Zen();
+		Car zenAsCar=new Zen();
+
+		Animal animal4=(Animal)dog;
+
+		Car car2=(Car)zen;
+
+		Car car3=new Zen();
+		Zen zen1=(Zen) car3;
+
+		//Animal animal1=(Animal)zen; //compiler error
+
+		//Animal animal3=(Animal)new Car(){}; //compiler error
+
+		//dog=(Dog) horse;  //compiler error
+
+		//Car car=(Zen)animal; //compiler error
+
+		//Dog dog2=(Dog)new Animal(){};  //compiler error
+
+		Dog dog1=(Dog)new Animal();  //run-time error
+
+		Animal animal2=(Animal)zenAsCar;  //run-time error
+
+		Car car1=(Car)animal;  //run-time error
+	}
+}
+
+********************
+
+interface Car{}
+class Zen implements Car{}
+
+class Animal{}
+class Dog extends Animal{}
+class Horse extends Animal{}
+
+
+class Test{
+	public static void main(String... args){
+
+		Animal animal =new Animal();
+		Dog dog=new Dog();
+		Horse horse=new Horse();
+		Animal dogAsAnimal=new Dog();
+		Animal horseAsAnimal=new Horse();
+		Zen zen =new Zen();
+		Car zenAsCar=new Zen();
+
+		System.out.println(animal instanceof Dog);  //false
+		System.out.println(dog instanceof Animal);  //true
+
+		Car car2=zen;
+		System.out.println(car2 instanceof Zen);  //true
+
+		//System.out.println(zen instanceof Animal)  //compiler error
+
+		//System.out.println(new Car(){} instanceof Animal)  //compiler error
+
+		//System.out.println(horse instanceof Dog)  //compiler error
+
+		//System.out.println(animal instanceof Zen)  //compiler error
+
+		//System.out.println(new Animal(){} instanceof Dog)  //compiler error
+
+		System.out.println(new Animal() instanceof Dog);  //false
+
+		System.out.println(zenAsCar instanceof Animal);  //false
+
+		System.out.println(animal instanceof Car);  //false
+	}
+}
+
+-Whenever a cast is performed like '(TypeName)a' or instanceof operator is used like 'a instanceof TypeName', if both 'TypeName' or 'type of a at compile time' are classes, then compile time error is generated if 'TypeName' and 'type of a at compile time' are not in the same inheritance tree. However, if compiler checks are passed and if the object is not an instance of the required Type at runtime, an exception will be thrown in case of casting and false will be returned in case of instance of.
+
+-Whenever a cast is performed like '(TypeName)a' or instanceof operator is used like 'a instanceof TypeName', if either 'TypeName' or 'type of a at compile time' is an interface, then compile time error is not generated irrespective of whether 'TypeName' and 'type of a at compile time' are in the same hierarchy. However if the object is not an instance of the required Type at runtime, an exception will be thrown in case of casting and false will be returned in case of instance of.
+--------------------------------------------------------------------------------
+interface Car{}
+class Zen implements Car{}
+
+class Animal{}
+class Dog extends Animal{}
+class Horse extends Animal{}
+
+class Main{
+	public static void main(String[] args){
+		Animal animal =new Animal();
+		Dog dog=new Dog();
+		Horse horse=new Horse();
+		Animal dogAsAnimal=new Dog();
+		Animal horseAsAnimal=new Horse();
+		Zen zen =new Zen();
+		Car zenAsCar=new Zen();
+		System.out.println(new Dog() == new Horse());//error
+		System.out.println(new Dog()==new Zen());//error
+		System.out.println(new Dog()==new Animal());
+		System.out.println(new Dog()==(Car)new Zen());
+		System.out.println(animal==dog);
+		System.out.println(dog==horse);//error
+		System.out.println(dogAsAnimal==horse);
+		System.out.println(zen==dog);//error
+		System.out.println(zenAsCar==dog);
+	}
+}
+
+***********************
+class Test{
+	public static void main(String[] args) {
+		char a='a';
+		float b=97;
+		double c=97.0;
+		long d=97L;
+		byte e=(byte)128;
+		int f=-128;
+		System.out.println(a==b);//true
+		System.out.println(a==c);//true
+		System.out.println(a==d);//true
+		System.out.println(e==f);//true
+		
+		float g=25.3F;
+		double h=25.3;
+		byte i=(byte)g;
+		byte j=(byte)h;
+		System.out.println(g==h);//false
+		System.out.println(i==j);//true
+	}
+}
+
+Equality operators (==, !=) can be used for comparison between boolean values, 
+between two number types (may include char as one or both operands),
+between two object reference variables.
+
+Rules of compile time rules for == and != operator for reference variables are just like that of instanceof and casting operator.
+
+Equality operators can be used between primitive operands of different types as long as one of the types is implicitly convertible to the other. Thus == or != can be used between  float and long but cannot be used between char and boolean.
+
+Default implementation of equals() is same as that of ==
+--------------------------------------------------------------------------------
+class Test{
+	public static void main(String... args){
+		int a=0;
+		System.out.println(a++ +", "+ a++ +", "+ a++);
+	}
+}
+
+output:
+0, 1, 2
+
+***************
+class Test{
+	public static void main(String... args){
+		int x = 2; int y = 3;
+		if ((y == x++) | (x < ++y)) {
+			System.out.println("x = " + x + " y = " + y);
+		}
+	}
+}
+
+output:
+x = 3 y = 4
+
+for operands with postfix operators, the 'postfix' is evaluated, once the operand is 'used' as it is encountered.
+--------------------------------------------------------------------------------
+class Test{
+	public static boolean isItSmall(int i){
+		if(i<5){
+			System.out.println("i<5");
+			return true;
+		}else{
+			System.out.println("i>=5");
+			return false;
+		}
+	}
+	public static void main(String... args){
+		if(isItSmall(3) || isItSmall(7))System.out.println("Result is true");
+		if(isItSmall(6) || isItSmall(9))System.out.println("Result is true");
+	}
+}
+
+output:
+i<5
+Result is true
+i>=5
+i>=5
+--------------------------------------------------------------------------------
+When + appears between characters or character and number types, string concatenation doesn't occur, their values get added.
+char a='a';
+int b=5;
+String c="cyril";
+System.out.println(a+b+c); //output : 102cyril
+--------------------------------------------------------------------------------
+class Test{
+	int a=2;
+	int b=5;
+	System.out.println("equal : "+a==b);
+}
+
++ operator has higher precedence than == operator.
+thus in above expression, string is being compared to int
+
+--------------------------------------------------------------------------------

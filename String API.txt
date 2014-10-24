@@ -1,0 +1,107 @@
+String API
+
+String Methods
+
+charAt(int index)
+concat(String string)
+equalsIgnoreCase(String string)
+length()
+replace(char toBeReplaced char replacedWith)
+substring(int index)
+substring(int index, int position)
+toLowerCase()
+toString()
+toUpperCase()
+trim()
+
+-these methods create new Strings which if not assigned to a reference variable, are lost.
+
+String a="cyril";
+a.toUpperCase();	//craetes a new string "CYRIL" which is abandoned.
+System.out.println(a);
+
+output:
+cyril
+---------------------------------------------------------
+StringBuilder and StringBuffer Methods
+The StringBuilder class has exactly the same methods as the old StringBuffer class, but StringBuilder is faster because its methods aren't synchronized.
+
+append(String string)//can take any datatype
+reverse()
+insert(int index, String string)
+delete(int index, int position)
+toString()//returns string
+-------------------------------------------------------------
+public class Test {
+	public static void main(String[] args) {
+	
+		String string="cyril";
+		StringBuilder stringBuilder=new StringBuilder("cyril");
+		
+		string.concat(" panicker");
+		stringBuilder.append(" panicker");
+		
+		System.out.println(string);
+		System.out.println(stringBuilder);
+	}
+
+}
+
+output:
+cyril
+cyril panicker
+-------------------------------------------------------------
+-operations which looks like modifying a string actully create a new String object.
+
+class StringTest {
+	public static void main(String [] args) {
+		String x = "Java"; 
+		String y = x; 
+		System.out.println("y string = " + y);
+		x = x + " Bean"; 		//re-assigns x to a new string "Java Bean", while y still refers "Java"
+		System.out.println("y string = " + y);
+	}
+}
+
+output:
+y string = Java
+y string = Java
+-------------------------------------------------------------
+String a="abc";
+-"abc" is created in pool.
+-a refers to "abc".
+
+String b=a.concat("def");
+-"def" is created in pool.
+-"abcdef" is created in normal memory.
+-b refers to "abcdef".
+
+String c=new String("xyz");
+-"xyz" is created in pool.
+-"xyz" is also created in normal memory.
+-c refers to "xyz" in normal memory.
+
+String literals when encountered are fetched from pool or created in pool if not present.
+Methods returning String always create new String in normal memory.
+-----------------------------------------------------------
+class Main{
+	public static void main(String... args){
+		String a="cyril";
+		String b="cyril panicker";
+		String d="cyril panicker";
+		String c=a.concat(" panicker");
+		System.out.println(b);
+		System.out.println(c);
+		System.out.println(b==c);
+		System.out.println(b==d);
+	}
+}
+
+output:
+cyril panicker
+cyril panicker
+false
+true
+
+String methods always create a new object irrespective of whether the resulting string exists in the constant pool or not.
+-----------------------------------------------------------

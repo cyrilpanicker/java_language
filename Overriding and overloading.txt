@@ -1,0 +1,51 @@
+Once a method with the same name and same parameter list is declared in the sub class, it is considered an overriding method and the following overriding rules are checked:
+
+-Return type of the overriding method must be the same or a subclass of the return type of the overridden method. (this is called co-variant returns)
+
+-Access level cannot be more restrictive than that of the overridden method.
+
+-If overriding method has checked exception declarations, they have to be either same or subclasses of checked exceptions declared for overridden method.
+--------------------------------------------------------------------------------
+If a superclass reference is used to access an overriding method in a subclass object, checked exceptions need to be handled or declared as per the declarations of the overridden method. So even if the overriding method doesn't declare checked exceptions, exceptions may need to be handled or declared if the overridden method declares any.
+--------------------------------------------------------------------------------
+private methods or private-final methods of the superclass are not visible to the subclass. Thus methods with same signature can be redeclared in the subclass. However they won't behave like overriding methods. They behave like normal methods declared in the subclass.
+
+static methods with same signature can be redeclared in the subclass. However they are not overridden. The method to be called is resolved based on the compile-time-type of the reference used to invoke the method.
+
+non-private final methods of the superclass cannot be redeclared in the subclass. ie. methods with same name and parameter list as that of a non-private final method cannot be declared.
+
+Member variables are not overridden. The variable to be used is resolved based on the compile-time-type of the reference used to access the variable.
+--------------------------------------------------------------------------------
+Once a method with the same name but different parameter list is declared in the sub class, it is consisdered an overloading method.
+Methods in the same class can also overload each other.
+There are no restrictions on the return type, access levels or exceptions of overloading methods
+--------------------------------------------------------------------------------
+class Test{
+
+	static void method(long a){System.out.println("long");}
+	static void method(Integer a){System.out.println("Integer");}
+
+	static void method1(int x, int y){System.out.println("int, int");}
+	static void method1(byte... x){System.out.println("byte...");}
+
+	static void method2(Byte x, Byte y){System.out.println("Byte, Byte");}
+	static void method2(Byte... x){System.out.println("Byte...");}
+
+	public static void main(String... args){
+
+		method(2);			//long
+
+		byte a=1,b=5;
+
+		method1(a,b);			//int, int
+
+		method2(a,b);			//Byte, Byte
+
+	}
+}
+
+-in case of a choice between overloaded methods with compatible primitive arguments, method with the smallest argument wider than the parameter is chosen.
+-in case of a choice between two overloaded methods, one with an argument requiring boxing and another with a primitive argument, method with the primitive argument would be chosen, even if it requires widening of the parameter.
+-in case of a choice between two overloaded methods, one with a compatible primitive argument, and another with a compatible varags list, method with the primitive argument would be chosen, even if it requires widening of the parameter.
+-in case of a choice between two overloaded methods, one with an argument requiring boxing, and another with a compatible varags list, method with the argument requiring boxing would be chosen.
+--------------------------------------------------------------------------------

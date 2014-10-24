@@ -1,0 +1,688 @@
+Threads
+
+Thread API
+
+public class Thread implements Runnable{
+
+	public enum State{NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED};
+
+	public static final int MAX_PRIORITY
+	public static final int MIN_PRIORITY
+	public static final int NORM_PRIORITY
+
+	public Thread(){}
+	public Thread(Runnable target){}
+	public Thread(Runnable target, String name){}
+	public Thread(String name){}
+
+	public static Thread currentThread(){}
+	public static void yield(){}
+	public static void sleep(long millis) throws InterruptedException{}
+
+	public final void join(long millis) throws InterruptedException{}
+	public final void join() throws InterruptedException{}
+
+	public void start(){}
+	public void run(){}
+
+	public void interrupt()
+	public static boolean interrupted()
+	public boolean isInterrupted()
+
+	public final boolean isAlive(){}
+	
+	public final void setPriority(int newPriority){}
+	public final int getPriority(){}
+	
+	public final void setName(String name){}
+	public final String getName(){}
+	
+	public long getId(){}
+	public Thread.State getState(){}
+}
+---------------------------------------------------------------------------------
+Thread states:
+
+NEW
+RUNNABLE
+BLOCKED
+WAITING
+TIMED_WAITING
+TERMINATED
+
+wait() can be called in a thread on an object only if the thread holds the lock for the object.
+once wait() is called, the thread moves to WAITING state and the lock on the object is released.
+
+notify()/notifyAll() can be called in a thread on an object only if the thread holds the lock for the object.
+
+when notify()/notifyAll() is called, all threads waiting on the object move from WAITING to BLOCKED state. (because notifying thread still holds the lock for the object)
+these methods move from BLOCKED to RUNNABLE (one by one) only when the notifying thread releases the lock on the object.
+
+---------------------------------------------------------------------------------------
+class Test{
+	public static void main(String... args) throws InterruptedException{
+		System.out.println("thread starts");
+		Thread thread=new Thread();
+		thread.start();
+		thread.join();
+		System.out.println("thread ends");
+		System.out.println("thread starts");
+		Thread thread1=new Thread(){};
+		thread1.start();
+		thread1.join();
+		System.out.println("thread ends");
+	}
+}
+
+output:
+thread starts
+thread ends
+thread starts
+thread ends
+
+The default run() in Thread object is empty.
+-----------------------------------------------------------------------------------------
+
+class Main{
+	public static void main(String[] args){
+		System.out.println("main, "+Thread.currentThread());
+		Runnable runnable=new Runnable(){
+			public void run(){
+				System.out.println("from run() in runnable, "+Thread.currentThread());
+			}
+		};
+		Thread thread=  new Thread(runnable);
+		System.out.println("new thread starts");
+		thread.start();
+		try{thread.join();}catch(InterruptedException exception){}
+		System.out.println("thread ended");
+		runnable.run();
+		thread.run();//no output
+		//thread.start();//run time error
+	}
+}
+
+output:
+main, Thread[main,5,main]
+new thread starts
+from run() in runnable, Thread[Thread-0,5,main]
+thread ended
+from run() in runnable, Thread[main,5,main]
+-----------------------------------------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args){
+		Thread thread=new Thread(new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread());
+			}
+		});
+		thread.start();
+		try{thread.join();}catch(InterruptedException exception){}
+		//thread.start();//run time error
+		Thread thread2= new Thread(thread);
+		thread2.start();//no output
+		try{thread2.join();}catch(InterruptedException exception){}
+	}
+}
+
+output:
+Thread[Thread-0,5,main]
+
+thread has target runnable which overrides run().
+thread2 has target runnable thread.
+However thread itself doesn't override run().
+And the default run() in thread is empty. 
+So no output.
+**************
+class DemoThread extends Thread{
+	DemoThread(Runnable runnable){super(runnable);}
+	public void run(){
+		System.out.println("run method of DemoThread class");
+	}
+}
+
+class Test{
+	public static void main(String... args) throws InterruptedException{
+		Thread thread=new DemoThread(new Runnable(){
+			public void run(){
+				System.out.println("run method of Runnable implementor");
+			}
+		});
+		thread.start();
+		thread.join();
+		Thread thread1=new DemoThread(new Runnable(){
+			public void run(){
+				System.out.println("run method of Runnable implementor");
+			}			
+		}){};
+		thread1.start();
+		thread1.join();
+	}
+}
+
+output:
+run method of DemoThread class
+run method of DemoThread class
+
+When start() is invoked on a thread object,
+if the thread object itself overrides run(), that run() is executed.
+else if it inherits any 'overridding' run(), that run() is executed.
+else if it has got a target runnable, the run() of that runnable is executed.
+else the run() of the super class Thread, is executed. viz..public void run(){}....empty.
+--------------------------------------------------------------------------------------------------------------
+When a thread enters a static synchronized method of a class, all other static methods of the class get locked for the particular thread.
+To acquire lock on all the static methods of a class, lock should be acquired on the Class object that represent the particular class.
+
+the Class object representing a particular class can be obtained as:
+
+-Class class=Class.forName("Demo");
+-Class class=Demo.class;
+-Class class=new Demo().getClass();
+------------------------------------------------------------------------------------------------------------------------------
+class Demo{
+	synchronized void method() throws Exception{
+		System.out.println(Thread.currentThread().getName()+" acquired lock on Demo object");
+		Thread.sleep(5000);
+		System.out.println(Thread.currentThread().getName()+" released lock on Demo object");
+	}
+}
+
+class Test{
+	public static void main(String[] args) throws Exception{
+		final Demo demo=new Demo();
+		Runnable runnable=new Runnable(){
+			public void run(){
+				try{
+					demo.method();
+				}
+				catch(Exception exception){
+					System.out.println("Exception thrown");
+				}
+			}
+		};
+		Thread thread1=new Thread(runnable,"Thread1");
+		Thread thread2=new Thread(runnable,"Thread2");
+		thread1.start();
+		Thread.sleep(1000);
+		synchronized(demo){
+			System.out.println(Thread.currentThread().getName()+" acquired lock on Demo object");
+			thread2.start();
+			Thread.sleep(5000);
+			System.out.println(Thread.currentThread().getName()+" released lock on Demo object");
+		}
+	}
+}
+output:
+Thread1 acquired lock on Demo object
+Thread1 released lock on Demo object
+main acquired lock on Demo object
+main released lock on Demo object
+Thread2 acquired lock on Demo object
+Thread2 released lock on Demo object
+----------------------------------------------------------------------------------------------------------------
+class Demo{}
+
+class Test{
+	public static void main(String[] args) throws Exception{
+
+		final Demo demo=new Demo();
+
+		Runnable waitingRunnable=new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" starts");
+				System.out.println(Thread.currentThread().getName()+" waits");
+				synchronized(demo){
+					try{demo.wait();}
+					catch(Exception exception){System.out.println("Exception thrown");}
+					System.out.println(Thread.currentThread().getName()+" resumes");
+				}
+				System.out.println(Thread.currentThread().getName()+" finishes");
+			}
+		};
+
+		Thread waitingThread1=new Thread(waitingRunnable,"waitingThread1");
+		Thread waitingThread2=new Thread(waitingRunnable,"waitingThread2");
+		Thread waitingThread3=new Thread(waitingRunnable,"waitingThread3");
+
+		Thread notifyingThread=new Thread(new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" starts");
+				synchronized(demo){
+					System.out.println(Thread.currentThread().getName()+" notifies");
+					demo.notify();
+				}
+				System.out.println(Thread.currentThread().getName()+" finishes");
+			}
+		},"notifyingThread");
+
+		waitingThread1.start();
+		waitingThread2.start();
+		waitingThread3.start();
+		Thread.sleep(5000);
+		notifyingThread.start();
+	}
+}
+output:
+waitingThread2 starts
+waitingThread1 starts
+waitingThread1 waits
+waitingThread2 waits
+waitingThread3 starts
+waitingThread3 waits
+notifyingThread starts
+notifyingThread notifies
+notifyingThread finishes
+waitingThread1 resumes
+waitingThread1 finishes
+<output suspended>
+--------------------------------------------------------------------------------------------------------------
+class Demo{}
+
+class Test{
+	public static void main(String[] args) throws Exception{
+
+		final Demo demo=new Demo();
+
+		Runnable waitingRunnable=new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" starts");
+				System.out.println(Thread.currentThread().getName()+" waits");
+				synchronized(demo){
+					try{demo.wait();}
+					catch(Exception exception){System.out.println("Exception thrown");}
+					System.out.println(Thread.currentThread().getName()+" resumes");
+				}
+				System.out.println(Thread.currentThread().getName()+" finishes");
+			}
+		};
+
+		Thread waitingThread1=new Thread(waitingRunnable,"waitingThread1");
+		Thread waitingThread2=new Thread(waitingRunnable,"waitingThread2");
+		Thread waitingThread3=new Thread(waitingRunnable,"waitingThread3");
+
+		Thread notifyingThread=new Thread(new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" starts");
+				synchronized(demo){
+					System.out.println(Thread.currentThread().getName()+" notifies");
+					demo.notifyAll();
+				}
+				System.out.println(Thread.currentThread().getName()+" finishes");
+			}
+		},"notifyingThread");
+
+		waitingThread1.start();
+		waitingThread2.start();
+		waitingThread3.start();
+		Thread.sleep(5000);
+		notifyingThread.start();
+	}
+}
+output:
+D:\c\p>java Test
+waitingThread2 starts
+waitingThread2 waits
+waitingThread1 starts
+waitingThread1 waits
+waitingThread3 starts
+waitingThread3 waits
+notifyingThread starts
+notifyingThread notifies
+notifyingThread finishes
+waitingThread3 resumes
+waitingThread3 finishes
+waitingThread1 resumes
+waitingThread1 finishes
+waitingThread2 resumes
+waitingThread2 finishes
+---------------------------------------------------------------------------------------------------------------------
+class Demo{}
+
+class Test{
+	static Demo demo1=new Demo();
+	static Demo demo2=new Demo();
+	public static void main(String[] args){
+		Thread thread1=new Thread(){
+			public void run(){
+				synchronized(demo1){
+					System.out.println("Thread1 acquires lock on demo1");
+					synchronized(demo2){
+						System.out.println("Thread1 acquires lock on demo2");
+					}
+					System.out.println("Thread1 releases lock on demo2");
+				}
+				System.out.println("Thread1 releases lock on demo1");
+			}
+		};
+		Thread thread2=new Thread(){
+			public void run(){
+				synchronized(demo2){
+					System.out.println("Thread2 acquires lock on demo2");
+					synchronized(demo1){
+						System.out.println("Thread2 acquires lock on demo1");
+					}
+					System.out.println("Thread2 releases lock on demo1");
+				}
+				System.out.println("Thread2 releases lock on demo2");
+			}
+		};
+		thread1.start();
+		thread2.start();
+	}
+}
+output:
+D:\c\p>java Test
+Thread2 acquires lock on demo2
+Thread1 acquires lock on demo1
+<suspended output>
+
+D:\c\p>java Test
+Thread2 acquires lock on demo2
+Thread2 acquires lock on demo1
+Thread2 releases lock on demo1
+Thread2 releases lock on demo2
+Thread1 acquires lock on demo1
+Thread1 acquires lock on demo2
+Thread1 releases lock on demo2
+Thread1 releases lock on demo1
+--------------------------------------------------------------------------------------------------
+class Demo{
+	void method1() throws Exception{
+		System.out.println(Thread.currentThread().getName()+" enters method1()");
+		Thread.sleep(5000);
+		System.out.println(Thread.currentThread().getName()+" exits method1()");
+	}
+	synchronized void method2() throws Exception{
+		System.out.println(Thread.currentThread().getName()+" enters method2()");
+		Thread.sleep(5000);
+		System.out.println(Thread.currentThread().getName()+" exits method2()");
+	}
+}
+
+class Test{
+	public static void main(String[] args) throws Exception{
+		final Demo demo=new Demo();
+		Runnable runMethod1=new Runnable(){
+			public void run(){
+				try{demo.method1();}
+				catch(Exception exception){System.out.println("Exception caught");}
+			}
+		};
+
+		Runnable runMethod2=new Runnable(){
+			public void run(){
+				try{demo.method2();}
+				catch(Exception exception){System.out.println("Exception caught");}
+			}
+		};
+		Thread thread1=new Thread(runMethod1,"thread1");
+		synchronized(demo){
+			thread1.start();
+			demo.method1();
+		}
+		Thread thread2=new Thread(runMethod2,"thread2");
+		synchronized(demo){
+			thread2.start();
+			new Thread(runMethod1,"thread3").start();
+			demo.method2();
+		}
+	}
+}
+output:
+D:\c\p>java Test
+main enters method1()
+thread1 enters method1()
+main exits method1()
+thread1 exits method1()
+thread3 enters method1()
+main enters method2()
+main exits method2()
+thread3 exits method1()
+thread2 enters method2()
+thread2 exits method2()
+---------------------------------------------------------------------------------------------------------
+class Demo{
+	synchronized void method(){
+		System.out.println(Thread.currentThread().getName()+" notifies all");
+		notifyAll();
+	}
+}
+
+class Test{
+	static Demo demo1=new Demo();
+	static Demo demo2=new Demo();
+	public static void main(String[] args) throws Exception{
+		Runnable waitingOnDemo1Runnable=new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" starts");
+				System.out.println(Thread.currentThread().getName()+" waits");
+				synchronized(demo1){
+					try{demo1.wait();}
+					catch(Exception exception){System.out.println("Exception occured");}
+				}
+				System.out.println(Thread.currentThread().getName()+" resumes");
+			}
+		};
+		Runnable waitingOnDemo2Runnable=new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" starts");
+				System.out.println(Thread.currentThread().getName()+" waits");
+				synchronized(demo2){
+					try{demo2.wait();}
+					catch(Exception exception){System.out.println("Exception occured");}
+				}
+				System.out.println(Thread.currentThread().getName()+" resumes");
+			}
+		};
+		Thread threadWaitingOnDemo1=new Thread(waitingOnDemo1Runnable,"demo1Thread");
+		Thread threadWaitingOnDemo2=new Thread(waitingOnDemo2Runnable,"demo2Thread");
+		threadWaitingOnDemo1.start();
+		threadWaitingOnDemo2.start();
+		Thread.sleep(2000);
+		demo2.method();
+	}
+}
+output:
+D:\c\p>java Test
+demo2Thread starts
+demo2Thread waits
+demo1Thread starts
+demo1Thread waits
+main notifies all
+demo2Thread resumes
+<suspended output>
+-----------------------------------------------------------------------------------------------------------------
+class NotifierThread extends Thread{
+	NotifierThread(String name){super(name);}
+	public void run(){
+		System.out.println(Thread.currentThread().getName()+" starts");
+		try{Thread.sleep(5000);}catch(Exception exception){}
+		synchronized(this){
+			System.out.println(Thread.currentThread().getName()+" notifies");
+			notify();
+		}
+		try{Thread.sleep(5000);}catch(Exception exception){}
+		synchronized(this){
+			System.out.println(Thread.currentThread().getName()+" notifies");
+			notify();
+		}
+		System.out.println(Thread.currentThread().getName()+" ends");
+	}
+}
+
+class Test{
+	public static void main(String[] args) throws Exception{
+		System.out.println(Thread.currentThread().getName()+" starts");
+		NotifierThread notifierThread1=new NotifierThread("notifierThread1");
+		NotifierThread notifierThread2=new NotifierThread("notifierThread2");
+		notifierThread1.start();
+		notifierThread2.start();
+		synchronized(notifierThread1){
+			System.out.println(Thread.currentThread().getName()+" waits ");
+			notifierThread1.wait();
+			System.out.println(Thread.currentThread().getName()+" resumes ");
+		}
+		synchronized(notifierThread2){
+			System.out.println(Thread.currentThread().getName()+" waits ");
+			notifierThread2.wait();
+			System.out.println(Thread.currentThread().getName()+" resumes ");
+		}
+		System.out.println(Thread.currentThread().getName()+" ends");
+	}
+}
+output:
+D:\c\p>java Test
+main starts
+main waits
+notifierThread1 starts
+notifierThread2 starts
+notifierThread2 notifies
+notifierThread1 notifies
+main resumes
+main waits
+notifierThread1 notifies
+notifierThread2 notifies
+notifierThread1 ends
+main resumes
+notifierThread2 ends
+main ends
+---------------------------------------------------------------------------------------------------------
+class Test{
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+
+			System.out.println(Thread.currentThread().getName()+" starts");
+
+			for(int i=0;i<10000000;i++)Thread.yield();
+
+			System.out.println("interrupted status of Thread1 : "+Thread.currentThread().isInterrupted());
+
+			if(Thread.interrupted())System.out.println("interrupted status of Thread1 after 1 invocation of interrupted() is "+thread1.interrupted());
+
+			System.out.println(Thread.currentThread().getName()+" ends");
+		}
+	};
+	public static void main(String... args) throws Exception{
+		thread1.start();
+		System.out.println(thread1.getName()+" is "+thread1.getState());
+		thread1.interrupt();
+		System.out.println(thread1.getName()+" is "+thread1.getState());
+		thread1.join();
+		System.out.println(thread1.getName()+" is "+thread1.getState());
+	}
+}
+
+output:
+Thread1 starts
+Thread1 is RUNNABLE
+Thread1 is RUNNABLE
+interrupted status of Thread1 : true
+interrupted status of Thread1 after 1 invocation of interrupted() is false
+Thread1 ends
+Thread1 is TERMINATED
+
+-calling interrupt() on a dead or a new thread silently fails; interrupted status is not set
+***********************************
+class Test{
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			System.out.println(Thread.currentThread().getName()+" starts");
+			try{Thread.sleep(500);}catch(InterruptedException exception){System.out.println("Interrupted while sleeping\ninterrupted status : "+thread1.isInterrupted());}
+			finally{System.out.println(Thread.currentThread().getName()+" ends");}
+		}
+	};
+	public static void main(String... args) throws Exception{
+		thread1.start();
+		Thread.sleep(100);
+		thread1.interrupt();
+		thread1.join();
+	}
+}
+
+output:
+Thread1 starts
+Interrupted while sleeping
+interrupted status : false
+Thread1 ends
+
+-if a thread is interrupted while it is not-runnable, InterruptedException is thrown and the interrupted status is cleared
+--------------------------------------------------------------------------------------------------------
+class Test{
+
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			System.out.println(this.getName()+" starts");
+			for(int i=1;i<=10000000;i++)Thread.yield();
+			System.out.println("interrupted status of "+this.getName()+" : "+this.isInterrupted());
+			System.out.println(this.getName()+" sleeps");	
+			try{Thread.sleep(2000);}catch(InterruptedException exception){System.out.println(exception.getMessage());}
+			System.out.println(this.getName()+" awakes and completes");
+		}
+	};
+
+	public static void main(String... args) throws Exception{
+		thread1.start();
+		Thread.sleep(10);
+		System.out.println(thread1.getName()+" is interrupted");
+		thread1.interrupt();
+	}
+}
+
+output:
+Thread1 starts
+Thread1 is interrupted
+interrupted status of Thread1 : true
+Thread1 sleeps
+sleep interrupted
+Thread1 awakes and completes
+
+if a method capable of throwing InterruptedException is invoked on a thread, the interrupted status of the thread is checked, and if it 'is' interrupted, InterruptedException is thrown.
+Thus a thread which is already interrupted cannot invoke a method throwing InterruptedException.
+-------------------------------------------------------------------------------------------------------------
+class Demo{
+	void method(){
+		System.out.println(Thread.currentThread().getName()+" starts executing method on object");
+		try{Thread.sleep(2000);}catch(InterruptedException exception){}
+		System.out.println(Thread.currentThread().getName()+" finishes executing method on object");
+	}
+}
+
+
+class ThreadDemo{
+	static Demo demo=new Demo();
+	public static void main(String... args){
+		Thread thread1=new Thread(new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" waiting for lock on object");
+				synchronized(demo){
+					System.out.println(Thread.currentThread().getName()+" acquires lock on object");
+					try{Thread.sleep(1000);}catch(InterruptedException exception){}
+					demo.method();
+					try{Thread.sleep(1000);}catch(InterruptedException exception){}
+				}
+				System.out.println(Thread.currentThread().getName()+" releases lock on object");
+			}
+		});
+		Thread thread2=new Thread(new Runnable(){
+			public void run(){
+				System.out.println(Thread.currentThread().getName()+" waiting for lock on object");
+				synchronized(demo){
+					System.out.println(Thread.currentThread().getName()+" acquires lock on object");
+					try{Thread.sleep(1000);}catch(InterruptedException exception){}
+					demo.method();
+					try{Thread.sleep(1000);}catch(InterruptedException exception){}
+				}
+				System.out.println(Thread.currentThread().getName()+" releases lock on object");
+			}
+		});
+		Thread thread3=new Thread(new Runnable(){
+			public void run(){
+				demo.method();
+			}
+		});
+		thread1.start();
+		thread2.start();
+		thread3.start();
+	}
+}
+-------------------------------------------------------------------------------------------------------------

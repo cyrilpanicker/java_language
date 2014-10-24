@@ -1,0 +1,115 @@
+
+-d for javac command: to specify destination path for the generated class files, it also creates the entire directory structure (if it doesn't exist) as per the package statement, if this switch is not used, the class file is placed in the same directory as the java file and the directory structure is not created (whether or not a package statement exists).
+
+--------------------------------------------------------------------------------
+-D for java command: to set the properties at runtime  in "Properties". 
+
+import java.util.Properties;
+class Test{
+	public static void main(String... args){
+		Properties properties=System.getProperties();
+
+		properties.setProperty("compile time property","value of compile time property");
+
+		System.out.println();
+
+		System.out.println(properties.getProperty("compile time property"));
+		System.out.println(properties.getProperty("run time property")); //run time property
+		System.out.println(properties.getProperty("runtimeproperty")); //run time property
+
+		System.out.println();
+		System.out.println();
+
+		properties.list(System.out);
+	}
+}
+
+//java -D"run time property"="value for runtime property" -Druntimeproperty=runtimeproprtyvalue Test
+--------------------------------------------------------------------------------
+-classpath, -cp for javac and java commands: to specify the folders to search for classes
+
+classes are searched in the following places in the order as written:
+-directories containg java runtime libraries. (JAVA_HOME/jre/lib/rt.jar)
+-directories mentioned in the 'classpath' variable. (jar files and class files in jre/lib/ext are automtically prepended to the classpath)
+
+classpath variable has a default value indicating current folder('.') 
+-Thus if classpath variable is not set, only the current folder is searched other than the run time libraries. 
+-Also if the classpath variable is set, the current directory is searched only if it('.') is included as one of the directories to be searched.
+
+classpath variable can be set permanently as an environment variable in the operating system. eg 
+%classpath%="C:\folder1;.;C:folder1\folder2;..\folder"
+
+classpath variable can be set for each inocation of java or javac command using -cp or -classpath eg 
+java -cp C:\folder1;.;C:folder1\folder2;..\folder; Test
+
+
+Each classpath should end with a filename or directory depending on what you are setting the class path to:
+-For a .jar or .zip file that contains .class files, the class path ends with the name of the .zip or .jar file.
+-For .class files in an unnamed (default) package, the class path ends with the directory that contains the .class files.
+-For .class files in a named package, the class path ends with the directory that contains the "root" package (the first package in the full package name).
+--------------------------------------------------------------------------------
+For class files in unnamed (default) package, the class file should be in one of the directories specified by the classpath variable, to run the class using the java command.
+
+eg.
+class Test{
+	public static void main(String... args){
+		System.out.println("run");
+	}
+}
+if Test.class is present in a directory called demoFolder, the java command should be used as
+
+java -cp demoFolder Test
+
+For class files in a named package, the fully qualified class name is required to run the class using java command.
+Also the 'root' package (or root directory) should be in one of the directories specified by the classpath variable while searching.
+
+eg.
+package com.cyril;
+class Test{
+	public static void main(String... args){
+		System.out.println("run");
+	}
+}
+Test.class should be present in com/cyril directory.
+if the com directory is present in a directory called demoFolder, the java command should be used as 
+
+java -cp demoFolder com.cyril.Test
+or as
+java -cp demoFolder com/cyril/Test
+--------------------------------------------------------------------------------
+
+  demoFolder     
+   |--myApp	(root package)
+        |--utils
+        |    |--Util1.class (package myApp.utils;)
+        |--engines
+             |--Engine1.class (package myApp.engine;)
+             |--Engine2.class (package myApp.engine;)
+
+myApp can be archived as:
+jar -cf MyAppJar.jar myApp (command has to be run in demoFolder)
+
+  demoFolder1     
+   |--MyAppJar.jar  (MyAppJar.jar is portable and can be placed anywhere)
+
+contents of MyAppJAr.jar can be viewed as:
+jar -tf MyAppJar.jar
+
+META-INF/
+META-INF/MANIFEST.MF
+myApp/
+myApp/engines/
+myApp/engines/Engine1.class
+myApp/engines/Engine2.class
+myApp/utils/
+myApp/utils/Util1.class
+
+classes myApp.utils.Util1, myApp.engines.Engine1 and myApp.engines.Engine2 can be included in classpath with :
+-cp demoFolder (myApp root package in demoFolder is searched automatically)
+or
+-cp demoFolder1/MyAppJar.jar (myApp root package in MyAppJar.jar is not searched automatically until MyAppJar.jar is included in the classpath)
+--------------------------------------------------------------------------------
+-javac searches for all classes mentioned in the .java file. Thus all classes mentioned in the .java file should be accessible by the classpath.
+
+-java searches for all classes used in the executing class and also the executing class. Thus all classes used in the executing class, and also the executing class itself should be accessible by the classpath.
+--------------------------------------------------------------------------------

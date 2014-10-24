@@ -1,0 +1,212 @@
+-Modifiers for top level classes
+  -access modifiers : default, public
+  -non-access modifiers : strictfp, final, abstract
+  	-class cannot be both final and abstract.
+  	-abstract or final classes 'can' be strictfp.
+
+-Modifiers for member classes / nested classes
+  -access modifiers : private, default, protected, public
+  -non-access modifiers : strictfp, final, abstract, static  
+  	-static turns it into a static nested class.
+
+-Modifiers for local classes
+  -final and abstract
+
+-Modifiers for class members
+  -access modifiers : private, default, protected, public
+  -non-access non-local variable modifiers : final, static, transient, volatile.
+  -non-access method modifiers : strictfp, final, abstract, static, synchronized, native
+  	-the only modifiers which go together with abstract methods are default, protected or public.
+	-native method declarations end with a semicolon like abstract methods.
+  	-native methods cannot be abstract or strictfp.
+  	-a private final method is the same as a private method.
+
+-Modifiers for top level interfaces
+  -access modifiers : public, default
+  -non-access modifiers : abstract, strictfp (interfaces are implicitly abstract)
+
+Modifiers for interface members
+  -only modifiers allowed for methods are public and abstract (interface methods are implicitly public and abstract).
+  -only modifiers allowed for variables are public, static and final (interface variables are implicitly public, static and final).
+
+Modifiers for local variables
+  -access modifiers cannot be applied to local variables.
+  -only final can be applied to a local variable.
+--------------------------------------------------------------------------------
+
+class Demo{
+	//final int a; //error
+}
+class Demo1{
+	final int a;
+	int b=42;
+	{a=b;}
+	void method(){
+		final int i;	//no error; can be initialized any time before use
+		i=42;
+		//i=5;	//error
+		//i++;	//error
+	}
+}
+class Demo2{
+	final int a;
+	Demo2(){a=5;}
+}
+class Demo3{
+	//static final int a; //error
+}
+class Demo4{
+	static final int a;
+	static{
+		a=85;
+	}
+}
+
+-final member variables should be initialized explicitly. 
+-final member variables can be initialized on declaration, in initialization block or in constructor. 
+-static final variables can be initialized on declaration, or in static initialization block. 
+-since member classes cannot have static declarations, static final variables of member class have to be initialized on declaration.(member classes can have static final variables)
+
+-final local variables can be initialize any time before use. However they can be initialized only once.
+--------------------------------------------------------------------------------
+class Main{
+	public static void main(String[] args) {
+		final int a=52; //creates an integer literal
+		int b=8;
+		
+		//byte c=b;  //error
+		byte c=a;
+		byte d=2;
+		
+		switch(c){
+		//case b: //error
+		//case d: // error
+		case a:
+		}
+	}
+}
+**************************
+
+class Test{
+	public static void main(String... args){
+		
+		int i1=2;	//creates an int variable initialized with value
+		long l1=2;	//creates a long variable initialized with value
+
+		final int i2=2;	//creates an int literal; 'i2' and '2' are identical
+		final long l2=2;//creates a long literal; 'l2' and '2L' are identical
+
+		//byte b1=i1;	//type mismatch
+		//byte b2=l1;	//type mismatch
+
+		byte b3=2;
+		//byte b4=2L;	//out-of-range
+
+		byte b5=i2;	//sees '2'
+		//byte b6=l2;	//sees '2L'; out-of-range
+	}
+}
+
+-final variables 'initialized on declaration' with a literal value behaves exactly like a literal throughout the program. Thus final int variables can be assigned to byte or can be used as labels in switch-case.
+
+-a literal is a compile-time-constant. the value of a compile-time-constant is known to the compiler at compile time
+--------------------------------------------------------------------------------
+class Main {
+	static int a=10;
+	static void a(){}
+	
+	int b=2;
+	void b(){}
+	
+	static int c=5;
+	void c(){}
+	
+	int d=8;
+	static void d(){}
+}
+
+  -a class 'can' have a method and a variable with the same name whether static or non-static.
+--------------------------------------------------------------------------------
+class SuperClass {
+	final void finalMethod(){}
+	final static void staticFinalMethod(){}
+	final private void privateFinalMethod(){}
+	final private static void privateStaticFinalMethod(){}
+}
+
+class SubClass1 extends SuperClass{
+	//void finalMethod(){}  //error
+	//void staticFinalMethod(){}  //error
+	void privateFinalMethod(){}
+	void privateStaticFinalMethod(){}
+}
+
+class SubClass2 extends SuperClass{
+	//static void finalMethod(){}  //error
+	//static void staticFinalMethod(){}  //error
+	static void privateFinalMethod(){}
+	static void privateStaticFinalMethod(){}
+}
+
+  -a sub class cannot have a method with the same signature as that of a non-private final method of the super class.
+--------------------------------------------------------------------------------
+class SuperClass {
+	void method(){}
+	//static void method(){}  //error
+	
+	static void method1(){}
+	//void method1(){}  //error
+	
+	private void method2(){}
+	
+	private static void method3(){}
+}
+
+class SubClass extends SuperClass{
+	//static void method(){}  //error
+	
+	//void method1(){}  //error
+	
+	static void method2(){}
+	
+	void method3(){}
+}
+
+  -a class cannot have instance method and static method with the same signature. Thus an instance method cannot have the same signature as that of a non-private static method of super class. And a static method cannot have the same signature as that of a non-private instance method of super class. 
+--------------------------------------------------------------------------------
+
+class SuperClass {
+	int a=10;
+	//static float a=20;  //error
+	
+	static int b=20;
+	//float b=52;  //error
+}
+
+class SubClass extends SuperClass{
+	static int a=100;
+	int b=200;
+	
+	void method(){
+		System.out.println(a+", "+super.a+", "+new SubClass().a+", "+new SuperClass().a+", "+SubClass.a);
+		//System.out.println(SubClass.b);  //error
+		System.out.println(b+", "+super.b+", "+new SubClass().b+", "+new SuperClass().b+", "+SuperClass.b);
+	}
+}
+
+  -a class cannot have an instance variable and static variable with same name. However an instance variable can have the same name as static variable of super class. In effect such a variable hides the static variable of super class. Such a variable cannot be accessed as a static variable of the sub class. Also a static variable can have the same name as instance variable of super class. In effect such a variable hides the instance variable of super class.
+--------------------------------------------------------------------------------
+class Test{
+	static String staticString;
+	String instanceString;
+	public static void main(String... args){
+		Test test;
+		//System.out.println(test.staticString);	//error; uninitialized.
+		test=null;
+		System.out.println(test.staticString);		//no error or exception
+		System.out.println(test.instanceString);	//null pointer exception
+	}
+}
+
+Static member of a class can also be called using a reference of the class, initialized or assigned to null. This is also true for constants in an interface.
+--------------------------------------------------------------------------------

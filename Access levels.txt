@@ -1,0 +1,50 @@
+-Private members are available for the subclass only if the subclass is a member class, local class or nested class of the super class. 
+-They are accessible by code anywhere in the class containing it.
+
+-Default members are available for the subclass only if the subclass is in the same package.
+-They are accessible by code anywhere in the package.
+
+-Protected members are always available for any subclass irrespective of the package. 
+-They are accessible by code anywhere in the same package. 
+-For subclasses in different package, they are accessible only through inheritance ie. only as the member of the subclass and are private to them. (they act like private members of the subclass)
+
+-Public members are always available for any subclass and are accessible through code anywhere.
+--------------------------------------------------------------------------------
+package pkg1;
+
+public class SuperClass {
+	protected int a=52;
+}
+................................
+
+package pkg2;
+import pkg1.*;
+
+class SubClass extends SuperClass{
+	void method(){
+		System.out.println(a);
+		System.out.println(this.a);
+		System.out.println(super.a);
+		System.out.println(new SubClass().a);
+		//System.out.println(new SuperClass().a);  //error
+		//System.out.println(((SuperClass)new SubClass()).a);  //error
+	}
+}
+
+class SubSubClass extends SubClass{
+	void method(){
+		System.out.println(a);
+		System.out.println(this.a);
+		System.out.println(super.a);
+		System.out.println(new SubSubClass().a);
+		//System.out.println(new SubClass().a);  //error
+		//System.out.println(new SuperClass().a);  //error
+	}
+}
+
+class UnrelatedClass{
+	void method(){
+		//new SubClass().a;  //error
+		//new SubSubClass().a;  //error
+	}
+}

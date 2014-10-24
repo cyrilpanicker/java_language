@@ -1,0 +1,8 @@
+interfaces are implicitly abstract
+interface fields are implicitly public, static and final. no other modifiers are allowed.
+interface methods are implicitly public and abstract. no other modifiers are allowed.
+
+abstract interface interfaceName{
+	public static final int a=10;
+	public abstract void method();
+}

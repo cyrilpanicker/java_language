@@ -1,0 +1,143 @@
+-An instance method in a class has implicit reference to the object on which the method was invoked.
+
+-This reference is available through 'this' and 'super' keywords.
+
+-When a subclass object is created,
+	-first, the superclass members are added.
+	-then, the subclass members are added.
+
+-'this' can see the whole object. (members from superclass as well as those from subclass are visible. This is similar to the condition where a reference to the subclass object is created ).
+
+-'super' can see only the partially created object. (members added by the subclass are not visible. This includes members which are redeclared, and methods which override methods of the superclass)
+
+-Thus 'super' can be used in subclass instance methods to access superclass members hidden by the subclass members, either by redeclaration or by overriding.
+
+-'this' and 'super' are available only for instance methods.
+
+-Abstract methods and interface members are not visible through super keyword.
+
+--------------------------------------------------------------------------------
+class ParentTest{
+	public String toString(){return "ParentTest";}
+}
+
+class Test extends ParentTest{
+	public String toString(){return "Test";}
+	void method(){
+		System.out.println(toString());
+		System.out.println(this.toString());
+		System.out.println(((Object)this).toString());
+		System.out.println(super.toString());
+	}
+	public static void main(String... args){
+		new Test().method();
+	}
+}
+--------------------------------------------------------------------------------
+class SuperClass{
+	
+	int variable1=10;
+	
+	void method1(){
+		System.out.println("method of SuperClass");
+	}
+
+	static void staticMethod1(){
+		System.out.println("static method of SuperClass");
+	}
+}
+
+class Test extends SuperClass{
+
+	int variable1=20;
+
+	void method1(){
+		System.out.println("method of SubClass");
+	}
+	
+	static void staticMethod1(){
+		System.out.println("static method of SubClass");
+		//super.method1();		//error
+	}
+
+	void method(){
+
+		method1();
+		this.method1();
+		super.method1();
+
+		System.out.println();
+
+		staticMethod1();
+		super.staticMethod1();
+
+		System.out.println();
+
+		System.out.println(variable1);
+		System.out.println(super.variable1);
+	}
+
+	public static void main(String... args){
+		new Test().method();
+	}
+}
+output:
+method of SubClass
+method of SubClass
+method of SuperClass
+
+static method of SubClass
+static method of SuperClass
+
+20
+10
+--------------------------------------------------------------------------------
+
+abstract class SuperClass{
+
+	int variable1=10;
+
+	static void staticMethod(){}
+	
+	abstract void method2();
+
+	void method1(){
+		method2();	//no error, since the object invoking method1() will have implementation for method2()
+	}
+}
+
+interface InterfaceDemo{
+	int interfaceVariable=100;
+	void interfaceMethod();
+}
+
+class Test extends SuperClass implements InterfaceDemo{
+
+	int variable1=20;
+
+	static void staticMethod(){}
+
+	void method2(){}
+
+	public void interfaceMethod(){}
+
+	void method(){
+		
+		method1();
+		super.method1();
+
+		method2();
+		//super.method2();	//error; method2() is abstract
+
+		System.out.println(super.variable1);
+		super.staticMethod();
+
+		//System.out.println(super.interfaceVariable);	//error; cannot find symbol
+		//super.interfaceMethod();	//error; cannot find symbol
+	}
+
+	public static void main(String... args){
+		new Test().method();
+	}
+}
+--------------------------------------------------------------------------------

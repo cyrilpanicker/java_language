@@ -1,0 +1,659 @@
+public class Semaphore{
+
+	public Semaphore(int permits){}
+	public Semaphore(int permits, boolean fair){}
+
+	public void acquire() throws InterruptedException{}
+	public void acquire(int permits) throws InterruptedException{}
+
+	public void release(){}
+	public void release(int permits){}
+
+	public int availablePermits(){}
+}
+**************************
+import java.util.concurrent.*;
+
+class Test{
+	static Semaphore permit=new Semaphore(2);
+
+	static Runnable runnable=new Runnable(){
+		public void run(){
+			System.out.println(Thread.currentThread().getName()+" waits for permit");
+			try{permit.acquire();}catch(InterruptedException exception){System.out.println(exception);}
+			System.out.println(Thread.currentThread().getName()+" acquires permit");
+			for(int i=1;i<=1000000;i++)Thread.yield();
+			System.out.println(thread1.getName()+" is "+thread1.getState());
+			System.out.println(thread2.getName()+" is "+thread2.getState());
+			System.out.println(thread3.getName()+" is "+thread3.getState());
+			System.out.println(thread4.getName()+" is "+thread4.getState());
+			System.out.println(Thread.currentThread().getName()+" releases permit");
+			permit.release();
+		}
+	};
+
+	static Thread thread1=new Thread(runnable,"thread1");
+
+	static Thread thread2=new Thread(runnable,"thread2");
+
+	static Thread thread3=new Thread(runnable,"thread3");
+
+	static Thread thread4=new Thread(runnable,"thread4");
+
+
+	public static void main(String... args){
+		thread1.start();
+		thread2.start();
+		thread3.start();
+		thread4.start();
+	}
+}
+
+output:
+Thread1 waits for permit
+Thread1 acquires permit
+Thread2 waits for permit
+Thread2 acquires permit
+Thread3 waits for permit
+Thread4 waits for permit
+Thread1 is RUNNABLE
+Thread2 is RUNNABLE
+Thread3 is WAITING
+Thread4 is WAITING
+Thread1 releases permit
+Thread3 acquires permit
+Thread1 is TERMINATED
+Thread2 is RUNNABLE
+Thread3 is RUNNABLE
+Thread4 is WAITING
+Thread2 releases permit
+Thread4 acquires permit
+Thread1 is TERMINATED
+Thread2 is TERMINATED
+Thread3 is RUNNABLE
+Thread4 is RUNNABLE
+Thread3 releases permit
+Thread1 is TERMINATED
+Thread2 is TERMINATED
+Thread3 is TERMINATED
+Thread4 is RUNNABLE
+Thread4 releases permit
+**************************************************
+import java.util.concurrent.*;
+
+class Test{
+
+	static Semaphore permit=new Semaphore(1);
+
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			System.out.println("available permits : "+permit.availablePermits());
+			System.out.println("Thread1 waits for permit");
+			try{permit.acquire();}catch(InterruptedException exception){System.out.println(exception);}
+			try{permit.acquire();}catch(InterruptedException exception){System.out.println(exception);}
+			System.out.println("Thread1 acquires permit");
+			System.out.println("available permits : "+permit.availablePermits());
+		}
+	};
+
+	static Thread thread2=new Thread("Thread2"){
+		public void run(){
+			System.out.println("available permits : "+permit.availablePermits());
+			System.out.println("Thread2 releases permit");
+			permit.release();
+			permit.release();
+			permit.release();
+			System.out.println("available permits : "+permit.availablePermits());
+		}
+	};
+	
+	public static void main(String... args) throws Exception{
+		thread1.start();
+		Thread.sleep(2000);
+		thread2.start();
+	}
+}
+
+output:
+available permits : 1
+Thread1 waits for permit
+available permits : 0
+Thread2 releases permit
+available permits : 3
+Thread1 acquires permit
+available permits : 2
+
+the no. of permits is not restricted to the no. used in the constructor. release() increases the no. of permits, acquire() decreases the no. of permits. permits can never go less than 0.
+---------------------------------------------------------------------------------------------------------------------------------------------------
+public class CountDownLatch{
+
+	public CountDownLatch(int count){}
+
+	public void await() throws InterruptedException{}
+	public boolean await(long timeout, TimeUnit unit) throws InterruptedException{}
+
+	public void countDown(){}
+
+	public long getCount(){}
+}
+*****************
+import java.util.concurrent.*;
+
+class Test{
+
+	static CountDownLatch latch=new CountDownLatch(5);
+	
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			latch.countDown();
+			System.out.println("latch count decremented by "+thread1.getName()+"\nlatch count is "+latch.getCount());
+			System.out.println(thread1.getName()+" waits");
+			try{latch.await();}catch(InterruptedException exception){System.out.println(exception);}
+			System.out.println(thread1.getName()+" resumes and continues");
+		}
+	};
+
+	static Thread thread2=new Thread("Thread2"){
+		public void run(){
+			try{Thread.sleep(100);}catch(InterruptedException exception){System.out.println(exception);}
+			latch.countDown();
+			System.out.println("latch count decremented by "+thread2.getName()+"\nlatch count is "+latch.getCount());
+			System.out.println(thread2.getName()+" waits");
+			try{latch.await();}catch(InterruptedException exception){System.out.println(exception);}
+			System.out.println(thread2.getName()+" resumes and continues");
+		}
+	};
+
+	static Thread thread3=new Thread("Thread3"){
+		public void run(){
+			try{Thread.sleep(200);}catch(InterruptedException exception){System.out.println(exception);}
+			latch.countDown();
+			System.out.println("latch count decremented by "+thread3.getName()+"\nlatch count is "+latch.getCount());
+		}
+	};
+
+	public static void main(String... args) throws InterruptedException{
+		thread1.start();
+		thread2.start();
+		thread3.start();
+		Thread.sleep(300);
+		for(int i=0;i<2;i++){
+			latch.countDown();
+			System.out.println("latch count decremented by "+Thread.currentThread().getName()+"\nlatch count is "+latch.getCount());
+		}
+	}
+}
+
+output:
+latch count decremented by Thread1
+latch count is 4
+Thread1 waits
+latch count decremented by Thread2
+latch count is 3
+Thread2 waits
+latch count decremented by Thread3
+latch count is 2
+latch count decremented by main
+latch count is 1
+latch count decremented by main
+latch count is 0
+Thread2 resumes and continues
+Thread1 resumes and continues
+--------------------------------------------------------------------------------------------------------------------------------------------
+public class CyclicBarrier{
+
+	public CyclicBarrier(int parties){}
+	public CyclicBarrier(int parties, Runnable barrierAction){}
+
+	public int await() throws InterruptedException, BrokenBarrierException{}
+	public int await(long timeout, TimeUnit unit)throws InterruptedException, BrokenBarrierException, TimeoutException{}
+
+	public int getParties(){}
+	public void reset(){}
+	public int getNumberWaiting(){}
+}
+*********************
+import java.util.concurrent.*;
+
+class Test{
+	
+	static CyclicBarrier barrier=new CyclicBarrier(3,new Runnable(){
+		public void run(){
+			System.out.println("Tripped barrier action run by "+Thread.currentThread().getName());
+			try{Thread.sleep(100);}catch(InterruptedException exception){System.out.println(exception.getMessage());}
+			System.out.println("Tripped barrier action ends");
+		}
+	});
+
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			System.out.println(Thread.currentThread().getName()+" starts and waits on barrier");
+			try{barrier.await();}catch(Exception exception){System.out.println(exception.getMessage());}
+			System.out.println(Thread.currentThread().getName()+" resumes and continues");
+			try{Thread.sleep(500);}catch(InterruptedException exception){System.out.println(exception.getMessage());}
+			System.out.println(Thread.currentThread().getName()+" waits on barrier");
+			try{barrier.await();}catch(Exception exception){System.out.println(exception.getMessage());}
+			System.out.println(Thread.currentThread().getName()+" resumes and completes");
+		}
+	};
+
+	static Thread thread2=new Thread("Thread2"){
+		public void run(){
+			System.out.println(Thread.currentThread().getName()+" starts and waits on barrier");
+			try{barrier.await();}catch(Exception exception){System.out.println(exception.getMessage());}
+			System.out.println(Thread.currentThread().getName()+" resumes and continues");
+			try{Thread.sleep(500);}catch(InterruptedException exception){System.out.println(exception.getMessage());}
+			System.out.println(Thread.currentThread().getName()+" waits on barrier");
+			try{barrier.await();}catch(Exception exception){System.out.println(exception.getMessage());}
+			System.out.println(Thread.currentThread().getName()+" resumes and completes");
+		}
+	};
+
+	public static void main(String... args) throws Exception{
+		System.out.println("no. of threads required to trip the barrier "+barrier.getParties());
+		thread1.start();
+		Thread.sleep(100);
+		System.out.println("no. of threads waiting on the barrier "+barrier.getNumberWaiting());
+		thread2.start();
+		Thread.sleep(100);
+		System.out.println("no. of threads waiting on the barrier "+barrier.getNumberWaiting());
+		System.out.println(Thread.currentThread().getName()+" waits on barrier");
+		barrier.await();
+		System.out.println(Thread.currentThread().getName()+" resumes and continues");
+		try{Thread.sleep(500);}catch(InterruptedException exception){System.out.println(exception.getMessage());}
+		System.out.println(Thread.currentThread().getName()+" waits on barrier");
+		try{barrier.await();}catch(Exception exception){System.out.println(exception.getMessage());}
+		System.out.println(Thread.currentThread().getName()+" resumes and completes");
+	}
+}
+
+output:
+no. of threads required to trip the barrier 3
+Thread1 starts and waits on barrier
+no. of threads waiting on the barrier 1
+Thread2 starts and waits on barrier
+no. of threads waiting on the barrier 2
+main waits on barrier
+Tripped barrier action run by main
+Tripped barrier action ends
+main resumes and continues
+Thread2 resumes and continues
+Thread1 resumes and continues
+main waits on barrier
+Thread2 waits on barrier
+Thread1 waits on barrier
+Tripped barrier action run by Thread1
+Tripped barrier action ends
+Thread1 resumes and completes
+Thread2 resumes and completes
+main resumes and completes
+--------------------------------------------------------------------------------------------------------------------------------------------------
+public class Exchanger<V>{
+
+	public Exchanger(){}
+
+	public V exchange(V x) throws InterruptedException{}
+	public V exchange(V x, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException
+
+}
+
+**************************************
+import java.util.concurrent.*;
+
+class Data{
+	String data;
+	Data(String data){this.data=data;}
+	public String toString(){return data;}
+}
+
+class Test{
+
+	static Exchanger<Data> exchanger=new Exchanger<Data>();
+
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			Data data1=new Data("Thread1Data");
+			System.out.println("Before exchange Thread1 has "+data1);
+			System.out.println("Thread1 sleeps");
+			try{Thread.sleep(500);}catch(InterruptedException exception){System.out.println(exception.getMessage());}
+			System.out.println("Thread1 awakes");
+			System.out.println("Thread1 waits for exchange");
+			try{data1=exchanger.exchange(data1);}catch(Exception exception){System.out.println(exception);}
+			try{thread2.join();}catch(Exception exception){System.out.println(exception);}
+			System.out.println("After exchange Thread1 has "+data1);
+		}
+	};
+
+	static Thread thread2=new Thread("Thread2"){
+		public void run(){
+			Data data2=new Data("Thread2Data");
+			System.out.println("Before exchange Thread2 has "+data2);
+			System.out.println("Thread2 waits for exchange");
+			try{data2=exchanger.exchange(data2);}catch(Exception exception){System.out.println(exception);}
+			System.out.println("Exchange happens");
+			System.out.println("After exchange Thread2 has "+data2);
+		}
+	};
+
+	public static void main(String... args) throws Exception{
+		thread1.start();
+		thread2.start();
+	}
+}
+
+output:
+Before exchange Thread1 has Thread1Data
+Thread1 sleeps
+Before exchange Thread2 has Thread2Data
+Thread2 waits for exchange
+Thread1 awakes
+Thread1 waits for exchange
+Exchange happens
+After exchange Thread2 has Thread1Data
+After exchange Thread1 has Thread2Data
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+public enum TimeUnit{
+	NANOSECONDS,
+	MICROSECONDS,
+	MILLISECONDS,
+	SECONDS,
+	MINUTES,
+	HOURS,
+	DAYS
+}
+
+public interface Runnable{
+	public void run();
+}
+
+public interface Callable<V>{
+	V call() throws Exception;
+}
+
+public interface Future<V>{
+
+	V get() throws InterruptedException, ExecutionException;
+	V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException;
+
+	boolean isDone();
+	boolean isCancelled();
+
+	boolean cancel(boolean mayInterruptIfRunning);
+
+}
+
+public interface Executor{
+	void execute(Runnable command);
+}
+
+
+public interface ExecutorService extends Executor{
+
+	void shutdown();
+	List<Runnable> shutdownNow();
+	boolean isShutdown();
+
+	boolean isTerminated();
+	boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
+
+	<T> Future<T> submit(Callable<T> task);
+	<T> Future<T> submit(Runnable task, T result);
+	Future<?> submit(Runnable task);
+
+	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)throws InterruptedException;
+	<T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException;
+
+	<T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException;
+	<T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException;
+}
+
+public interface ScheduledExecutorService extends ExecutorService{
+
+	ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit);
+
+	<V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit);
+
+	ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit);
+
+	ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit);
+
+}
+
+class Executors{
+
+	public static <T> Callable<T> callable(Runnable task, T result)
+	public static Callable<Object> callable(Runnable task)
+
+	public static ExecutorService newFixedThreadPool(int nThreads);
+	public static ExecutorService newSingleThreadExecutor()
+	public static ExecutorService newCachedThreadPool()
+
+	public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize)
+	public static ScheduledExecutorService newSingleThreadScheduledExecutor()
+}
+-------------------------------------------------------------------------------------------------------------------------------------------
+import java.util.concurrent.*;
+class Test{
+	public static void main(String... args) throws Exception{
+
+		ExecutorService executor=Executors.newFixedThreadPool(2);
+
+		Callable<Integer> callable1=new Callable<Integer>(){
+			public Integer call() throws InterruptedException{
+				System.out.println(Thread.currentThread()+" starts and sleeps");
+				Thread.sleep(2000);
+				System.out.println(Thread.currentThread()+"awakes and returns 5");
+				return 5;
+			}
+		};
+
+		Callable<Integer> callable2=new Callable<Integer>(){
+			public Integer call() throws InterruptedException{
+				System.out.println(Thread.currentThread()+" starts and sleeps");
+				Thread.sleep(4000);
+				System.out.println(Thread.currentThread()+"awakes and returns 10");
+				return 10;
+			}
+		};
+		
+
+		Future<Integer> future1=executor.submit(callable1);
+		Future<Integer> future2=executor.submit(callable2);
+
+		executor.shutdown();
+
+		Thread.sleep(200);
+
+		System.out.println("future1 got its value : "+future1.isDone());
+		System.out.println("future2 got its value : "+future2.isDone());
+
+		System.out.println("callable1 returned "+future1.get());
+		System.out.println("future1 got its value : "+future1.isDone());
+		System.out.println("future2 got its value : "+future2.isDone());
+
+		System.out.println("callable2 returned "+future2.get());
+		System.out.println("future1 got its value : "+future1.isDone());
+		System.out.println("future2 got its value : "+future2.isDone());
+
+	}
+}
+
+output:
+Thread[pool-1-thread-1,5,main] starts and sleeps
+Thread[pool-1-thread-2,5,main] starts and sleeps
+future1 got its value : false
+future2 got its value : false
+Thread[pool-1-thread-1,5,main]awakes and returns 5
+callable1 returned 5
+future1 got its value : true
+future2 got its value : false
+Thread[pool-1-thread-2,5,main]awakes and returns 10
+callable2 returned 10
+future1 got its value : true
+future2 got its value : true
+----------------------------------------------------------------------------------------------------------------------------
+
+import java.util.concurrent.*;
+
+class PriceCalculation implements Callable<Double>{
+
+	int code;
+
+	PriceCalculation(int code){this.code=code;}
+
+	public Double call(){
+		switch(code){
+			case 101:return 1000.0;
+			case 102:return 2000.0;
+			default: return 0.0;
+		}
+	}
+}
+
+class DiscountCalculation implements Callable<Double>{
+
+	int code;
+
+	DiscountCalculation(int code){this.code=code;}
+
+	public Double call(){
+		switch(code){
+			case 101:return 10.0;
+			case 102:return 50.0;
+			default: return 0.0;
+		}
+	}
+}
+
+class Calculation implements Callable<Double>{
+
+	int code;
+
+	Calculation(int code){this.code=code;}
+
+	public Double call() throws Exception{
+		ExecutorService pool=Executors.newFixedThreadPool(2);
+		Future<Double> price=pool.submit(new PriceCalculation(code));
+		Future<Double> discount=pool.submit(new DiscountCalculation(code));
+		pool.shutdown();
+		return price.get()-price.get()*discount.get()/100;
+	}
+}
+
+class Test{
+	public static void main(String... args) throws Exception{
+		
+		System.out.println("Discounted price for item with code 101 is "+Executors.newSingleThreadExecutor().submit(new Calculation(101)).get());
+		System.out.println("Discounted price for item with code 102 is "+Executors.newSingleThreadExecutor().submit(new Calculation(102)).get());
+	}
+}
+
+output:
+Discounted price for item with code 101 is 900.0
+Discounted price for item with code 102 is 1000.0
+<output suspended>
+----------------------------------------------------------------------------------------------------------------------------
+public interface Lock{
+
+	void lock();
+	void lockInterruptibly() throws InterruptedException;
+	boolean tryLock();
+	boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
+	void unlock();
+}
+**************************
+class Test{
+
+	static void method() throws InterruptedException{
+		System.out.println(Thread.currentThread().getName()+" enters method()");
+		System.out.println(Thread.currentThread().getName()+" sleeps");
+		Thread.sleep(2000);
+		System.out.println(Thread.currentThread().getName()+" exits method()");
+	}
+	
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			System.out.println(this.getName()+" starts");
+			try{method();}catch(InterruptedException exception){exception.getMessage();}
+			System.out.println(this.getName()+" ends");
+		}
+	};
+
+	static Thread thread2=new Thread("Thread2"){
+		public void run(){
+			System.out.println(this.getName()+" starts");
+			try{method();}catch(InterruptedException exception){exception.getMessage();}
+			System.out.println(this.getName()+" ends");
+		}
+	};
+
+	public static void main(String... args){
+		thread1.start();
+		thread2.start();
+	}
+}
+
+output:
+Thread1 starts
+Thread1 enters method()
+Thread2 starts
+Thread1 sleeps
+Thread2 enters method()
+Thread2 sleeps
+Thread1 exits method()
+Thread2 exits method()
+Thread2 ends
+Thread1 ends
+*************************************
+import java.util.concurrent.locks.*;
+
+class Test{
+
+	static Lock lock=new ReentrantLock();
+
+	static void method() throws InterruptedException{
+		System.out.println(Thread.currentThread().getName()+" enters method()");
+		System.out.println(Thread.currentThread().getName()+" sleeps");
+		Thread.sleep(2000);
+		System.out.println(Thread.currentThread().getName()+" exits method()");
+	}
+	
+	static Thread thread1=new Thread("Thread1"){
+		public void run(){
+			System.out.println(this.getName()+" starts");
+			lock.lock();
+			try{method();}catch(InterruptedException exception){exception.getMessage();}
+			lock.unlock();
+			System.out.println(this.getName()+" ends");
+		}
+	};
+
+	static Thread thread2=new Thread("Thread2"){
+		public void run(){
+			System.out.println(this.getName()+" starts");
+			lock.lock();
+			try{method();}catch(InterruptedException exception){exception.getMessage();}
+			lock.unlock();
+			System.out.println(this.getName()+" ends");
+		}
+	};
+
+	public static void main(String... args){
+		thread1.start();
+		thread2.start();
+	}
+}
+
+output:
+Thread2 starts
+Thread2 enters method()
+Thread2 sleeps
+Thread1 starts
+Thread2 exits method()
+Thread2 ends
+Thread1 enters method()
+Thread1 sleeps
+Thread1 exits method()
+Thread1 ends
+-----------------------------------------------------------------------------------------------------------------------------

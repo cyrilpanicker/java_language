@@ -1,0 +1,28 @@
+-identifier can contain letters, numbers, currency characters and connecting characters only.
+-they cannot start with a number.
+--------------------------------------------------------------------------------
+legal identifiers:
+int _a;
+int $c;
+int ______2_w;
+int _$;
+int this_is_a_very_detailed_name_for_an_identifier;
+
+The following are illegal:
+int :b;
+int -d;
+int e#;
+int .f;
+int 7g;
+--------------------------------------------------------------------------------
+Examples of valid JavaBean method signatures are
+public void setMyValue(int v)
+public int getMyValue()
+public boolean isMyStatus()
+public void addMyListener(MyListener m)
+public void removeMyListener(MyListener m)
+
+Examples of invalid JavaBean method signatures are
+void setCustomerName(String s) // must be public
+public void modifyMyValue(int v) // can't use 'modify'
+public void addXListener(MyListener m) // listener type mismatch

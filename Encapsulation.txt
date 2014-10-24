@@ -1,0 +1,87 @@
+for maintainability, flexibility, and extensibility the code must be encapsulated
+
+- Keep instance variables protected (with an access modifier, often private).
+
+- Make public accessor methods, and force calling code to use those methods
+rather than directly accessing the instance variable.
+
+- For the methods, use the JavaBeans naming convention of
+set<someProperty> and get<someProperty>.
+--------------------------------------------------------------------------------
+class Address{
+	String city;
+	String state;
+}
+
+class Employee{
+	String name;
+	Address address;
+}
+
+class Test{
+	public static void main(String... args){
+
+		Address address=new Address();
+		address.city="Thane";
+		address.state="India";
+
+		Employee employee=new Employee();
+		employee.name="Cyril";
+		employee.address=address;
+	}
+}
+
+tightly coupled - due to weak encapsulation
+--------------------------------------------------------------------------------
+class Address{
+	private String city;
+	private String state;
+	Address(String city, String state){this.city=city; this.state=state;}
+	public String getCity(){return city;}
+	public String getState(){return state;}
+}
+
+class Employee{
+	private String name;
+	private Address address;
+	Employee(String name, Address address){this.name=name; this.address=address;}
+	public String getName(){return name;}
+	public Address getAddress(){return address;}
+}
+
+class Test{
+	public static void main(String... args){
+		Address address=new Address("Thane","India");
+		Employee employee=new Employee("Cyril",address);
+		System.out.println(employee.getName()+", "+employee.getAddress().getCity()+", "+employee.getAddress().getState());
+	}
+}
+
+loosely coupled.
+--------------------------------------------------------------------------------
+class BudgetReport {
+	void connectToRDBMS(){ }
+	void generateBudgetReport() { }
+	void saveToFile() { }
+	void print() { }
+}
+
+low cohesion
+--------------------------------------------------------------------------------
+class BudgetReport {
+	Options getReportingOptions() { }
+	void generateBudgetReport(Options o) { }
+}
+
+class ConnectToRDBMS {
+	DBconnection getRDBMS() { }
+}
+
+class PrintStuff {
+	PrintOptions getPrintOptions() { }
+}
+
+class FileSaver {
+	SaveOptions getFileSaveOptions() { }
+}
+--------------------------------------------------------------------------------
